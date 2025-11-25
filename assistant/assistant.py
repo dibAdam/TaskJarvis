@@ -50,39 +50,64 @@ class TaskAssistant:
         """
         Process user input, route to appropriate handler, and return response.
         """
+        from utils.date_parser import get_current_time_str
+        
         logger.info(f"Processing user input: {user_input[:100]}...")
         
-        system_prompt = """
+        # Get current time for LLM context
+        current_time = get_current_time_str()
+        
+        system_prompt = f"""
         You are TaskJarvis, a productivity assistant.
         Analyze the user's input and extract the intent and entities.
         
+        CURRENT TIME: {current_time}
+        
         Intents:
-        - add_task: Create a new task. Entities: title, deadline (YYYY-MM-DD HH:MM:SS or relative), priority (Low/Medium/High).
+        - add_task: Create a new task. Entities: title (REQUIRED), deadline (extract as "in X hours", "tomorrow" - NOT dates), priority
         - list_tasks: Show tasks. Entities: status (optional).
         - delete_task: Remove a task. Entities: id (int).
         - complete_task: Mark task as done. Entities: id (int).
         - analytics: Show stats.
-        - unknown: If you can't determine the intent.
+        - unknown: If unclear or not task-related.
 
-        Output JSON format ONLY:
-        {
-            "intent": "intent_name",
-            "entities": { ... },
-            "response": "A friendly message to the user confirming the action or asking for clarification."
-        }
+        CRITICAL: Respond with ONLY valid JSON. No markdown, no code blocks.
+        For deadlines: "one hour from now" → "in 1 hour"
+        
+        JSON format:
+        {{"intent": "intent_name", "entities": {{}}, "response": "message"}}
+        
+        Examples:
+        {{"intent": "list_tasks", "entities": {{}}, "response": "Here are your tasks."}}
+        {{"intent": "add_task", "entities": {{"title": "pick up phone", "deadline": "in 1 hour"}}, "response": "I'll add that task."}}
         """
         
         full_prompt = f"{system_prompt}\n\nUser Input: {user_input}"
         
         try:
             llm_response = self.llm_client.generate(full_prompt)
-            # Clean up response if it contains markdown code blocks
-            if "```json" in llm_response:
-                llm_response = llm_response.split("```json")[1].split("```")[0].strip()
-            elif "```" in llm_response:
-                llm_response = llm_response.split("```")[1].split("```")[0].strip()
-                
-            parsed = json.loads(llm_response)
+            logger.debug(f"Raw LLM response: {llm_response[:500]}...")
+            
+            # Clean up response
+            cleaned_response = llm_response.strip()
+            
+            # Remove markdown code blocks
+            if "```json" in cleaned_response:
+                cleaned_response = cleaned_response.split("```json")[1].split("```")[0].strip()
+            elif "```" in cleaned_response:
+                cleaned_response = cleaned_response.split("```")[1].split("```")[0].strip()
+            
+            # Extract JSON if there's extra text
+            if not cleaned_response.startswith("{"):
+                start_idx = cleaned_response.find("{")
+                if start_idx != -1:
+                    end_idx = cleaned_response.rfind("}")
+                    if end_idx != -1:
+                        cleaned_response = cleaned_response[start_idx:end_idx+1]
+            
+            logger.debug(f"Cleaned response: {cleaned_response[:500]}...")
+            
+            parsed = json.loads(cleaned_response)
             intent = parsed.get("intent")
             entities = parsed.get("entities", {})
             
@@ -90,9 +115,11 @@ class TaskAssistant:
             
         except json.JSONDecodeError as e:
             logger.error(f"Failed to parse LLM response as JSON: {e}")
-            return "Error: AI response was not valid JSON."
+            logger.error(f"Raw response was: {llm_response[:1000]}")
+            return "I'm having trouble understanding. Could you rephrase that?"
         except Exception as e:
             logger.error(f"Error processing request: {e}")
+            logger.error(f"Raw response was: {llm_response[:1000] if 'llm_response' in locals() else 'N/A'}")
             return f"Error processing request: {e}"
 
         ai_response = parsed.get("response", "")
@@ -114,17 +141,34 @@ class TaskAssistant:
             return ai_response
 
     def _handle_add_task(self, entities: Dict[str, Any], ai_msg: str) -> str:
+        from utils.date_parser import parse_deadline
+        
         title = entities.get("title")
         if not title:
             return "I need a task title to add it."
         
+        # Parse deadline using date parser
+        raw_deadline = entities.get("deadline")
+        parsed_deadline = parse_deadline(raw_deadline) if raw_deadline else None
+        
+        if raw_deadline and not parsed_deadline:
+            logger.warning(f"Failed to parse deadline: '{raw_deadline}'")
+            return f"I couldn't understand the deadline '{raw_deadline}'. Please use a format like 'tomorrow', 'in 2 hours', or 'YYYY-MM-DD HH:MM:SS'."
+        
         task = Task(
             title=title,
-            deadline=entities.get("deadline"),
+            deadline=parsed_deadline,
             priority=entities.get("priority", "Medium")
         )
         task_id = self.db.add_task(task)
-        return f"{ai_msg}\n(Task ID: {task_id})"
+        
+        # Build response with parsed deadline info
+        response = f"{ai_msg}\n(Task ID: {task_id}"
+        if parsed_deadline:
+            response += f", Deadline: {parsed_deadline}"
+        response += ")"
+        
+        return response
 
     def _handle_list_tasks(self, entities: Dict[str, Any], ai_msg: str) -> str:
         status = entities.get("status")
