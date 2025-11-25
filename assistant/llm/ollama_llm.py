@@ -1,14 +1,18 @@
 """Ollama local LLM client implementation."""
 
+import time
 from typing import Optional
 from assistant.llm.base_llm import BaseLLMClient
 from assistant.llm.errors import LLMError, LLMConnectionError
+from taskjarvis_logging.logger import get_logger, log_llm_request, log_llm_response
 
 try:
     import ollama
     OLLAMA_AVAILABLE = True
 except ImportError:
     OLLAMA_AVAILABLE = False
+
+logger = get_logger(__name__)
 
 class OllamaLLMClient(BaseLLMClient):
     """Ollama local LLM client implementation."""
@@ -31,6 +35,7 @@ class OllamaLLMClient(BaseLLMClient):
         super().__init__(api_key, model_name)
         self.host = host
         self.client = ollama.Client(host=self.host)
+        logger.info(f"Ollama client initialized with model: {self.model_name} at {self.host}")
     
     @property
     def provider_name(self) -> str:
@@ -54,6 +59,9 @@ class OllamaLLMClient(BaseLLMClient):
             LLMConnectionError: If connection to Ollama fails
             LLMError: For other errors
         """
+        start_time = time.time()
+        log_llm_request(logger, self.provider_name, self.model_name, prompt)
+        
         try:
             response = self.client.chat(
                 model=self.model_name,
@@ -61,14 +69,20 @@ class OllamaLLMClient(BaseLLMClient):
                     {"role": "user", "content": prompt}
                 ]
             )
-            return response['message']['content']
+            
+            latency = time.time() - start_time
+            result = response['message']['content']
+            log_llm_response(logger, self.provider_name, result, latency)
+            return result
         
         except Exception as e:
+            latency = time.time() - start_time
             error_msg = str(e).lower()
             if "connection" in error_msg or "refused" in error_msg:
-                raise LLMConnectionError(
-                    f"Cannot connect to Ollama at {self.host}. "
-                    f"Make sure Ollama is running. Error: {e}"
-                )
+                error_msg = f"Cannot connect to Ollama at {self.host}. Make sure Ollama is running. Error: {e}"
+                log_llm_response(logger, self.provider_name, "", latency, error=error_msg)
+                raise LLMConnectionError(error_msg)
             else:
-                raise LLMError(f"Ollama error: {e}")
+                error_msg = f"Ollama error: {e}"
+                log_llm_response(logger, self.provider_name, "", latency, error=error_msg)
+                raise LLMError(error_msg)

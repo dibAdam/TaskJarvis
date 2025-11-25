@@ -37,3 +37,7 @@ ENV/
 # Editor
 .vscode/
 .idea/
+
+# Logs
+logs/
+*.log

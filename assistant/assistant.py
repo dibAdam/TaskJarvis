@@ -7,6 +7,9 @@ from tasks.task_db import TaskDB
 from tasks.task import Task
 from analytics.dashboard import Dashboard
 from utils.helpers import format_task_output
+from taskjarvis_logging.logger import get_logger
+
+logger = get_logger(__name__)
 
 class TaskAssistant:
     def __init__(self, db: TaskDB):
@@ -47,6 +50,8 @@ class TaskAssistant:
         """
         Process user input, route to appropriate handler, and return response.
         """
+        logger.info(f"Processing user input: {user_input[:100]}...")
+        
         system_prompt = """
         You are TaskJarvis, a productivity assistant.
         Analyze the user's input and extract the intent and entities.
@@ -78,16 +83,22 @@ class TaskAssistant:
                 llm_response = llm_response.split("```")[1].split("```")[0].strip()
                 
             parsed = json.loads(llm_response)
-        except json.JSONDecodeError:
+            intent = parsed.get("intent")
+            entities = parsed.get("entities", {})
+            
+            logger.debug(f"Detected intent: {intent} | Entities: {entities}")
+            
+        except json.JSONDecodeError as e:
+            logger.error(f"Failed to parse LLM response as JSON: {e}")
             return "Error: AI response was not valid JSON."
         except Exception as e:
+            logger.error(f"Error processing request: {e}")
             return f"Error processing request: {e}"
 
-        intent = parsed.get("intent")
-        entities = parsed.get("entities", {})
         ai_response = parsed.get("response", "")
 
         # Routing Logic
+        logger.debug(f"Routing to handler for intent: {intent}")
         if intent == "add_task":
             return self._handle_add_task(entities, ai_response)
         elif intent == "list_tasks":
@@ -99,6 +110,7 @@ class TaskAssistant:
         elif intent == "analytics":
             return self._handle_analytics(ai_response)
         else:
+            logger.warning(f"Unknown intent: {intent}")
             return ai_response
 
     def _handle_add_task(self, entities: Dict[str, Any], ai_msg: str) -> str:
