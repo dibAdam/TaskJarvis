@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Dict, Any
+from typing import Dict, Any, Optional, Tuple
 from assistant.llm.factory import LLMFactory
 from config import settings
 from tasks.task_db import TaskDB
@@ -15,6 +15,7 @@ class TaskAssistant:
     def __init__(self, db: TaskDB):
         self.db = db
         self.dashboard = Dashboard()
+        self.show_sql = True  # Toggle SQL visibility
         
         # Get LLM provider from settings
         provider = settings.LLM_PROVIDER
@@ -46,28 +47,152 @@ class TaskAssistant:
             host=settings.OLLAMA_HOST if provider.upper() == "OLLAMA" else None
         )
 
+    # ============================================================
+    # LOWERCASE CONVERSION UTILITIES
+    # ============================================================
+    
+    def _normalize_text_fields(self, text: str) -> str:
+        """Convert text to lowercase for storage/queries."""
+        return text.lower().strip() if text else text
+    
+    def _normalize_entities(self, entities: Dict[str, Any]) -> Dict[str, Any]:
+        """Normalize all text fields in entities to lowercase."""
+        normalized = {}
+        for key, value in entities.items():
+            if isinstance(value, str) and key in ['title', 'status', 'priority']:
+                normalized[key] = self._normalize_text_fields(value)
+            else:
+                normalized[key] = value
+        return normalized
+
+    # ============================================================
+    # AI-POWERED SQL GENERATION
+    # ============================================================
+    
+    def _ask_ai_for_sql(self, intent: str, entities: Dict[str, Any], user_input: str) -> Optional[str]:
+        """
+        Ask the AI to generate the SQL query based on intent and entities.
+        This is the AI doing the work, not us!
+        """
+        from utils.date_parser import get_current_time_str
+        
+        current_time = get_current_time_str()
+        
+        # Normalize entities before passing to AI
+        normalized_entities = self._normalize_entities(entities)
+        
+        sql_generation_prompt = f"""
+You are an SQL expert. Generate ONLY the SQL query for this task management operation.
+
+DATABASE SCHEMA:
+CREATE TABLE tasks (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    status TEXT DEFAULT 'pending',
+    priority TEXT DEFAULT 'medium',
+    deadline DATETIME,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+IMPORTANT RULES:
+- ALL text values MUST be in lowercase (title, status, priority)
+- Use lowercase for: 'pending', 'completed', 'low', 'medium', 'high'
+- NEVER use uppercase or mixed case like 'Pending', 'Medium', 'Completed'
+
+USER REQUEST: {user_input}
+DETECTED INTENT: {intent}
+EXTRACTED ENTITIES: {json.dumps(normalized_entities)}
+CURRENT TIME: {current_time}
+
+INSTRUCTIONS:
+- Generate ONLY the SQL query, nothing else
+- No markdown, no explanations, no code blocks
+- Use single quotes for strings
+- ALL string values must be lowercase
+- For INSERT: include title (lowercase), and optionally deadline, priority (lowercase), status (lowercase)
+- For SELECT: use WHERE clauses with lowercase values (status, priority)
+- For UPDATE: set status='completed' for complete operations (lowercase)
+- For DELETE: use WHERE id = X or delete all if scope is "all"
+
+Examples:
+Intent: add_task, Entities: {{"title": "buy milk"}}
+Response: INSERT INTO tasks (title, status, priority) VALUES ('buy milk', 'pending', 'medium');
+
+Intent: list_tasks, Entities: {{"status": "pending"}}
+Response: SELECT * FROM tasks WHERE LOWER(status) = 'pending';
+
+Intent: delete_task, Entities: {{"id": 5}}
+Response: DELETE FROM tasks WHERE id = 5;
+
+Intent: complete_task, Entities: {{"id": 3}}
+Response: UPDATE tasks SET status = 'completed' WHERE id = 3;
+
+Now generate the SQL query:
+"""
+        
+        try:
+            sql_response = self.llm_client.generate(sql_generation_prompt)
+            
+            # Clean up the response
+            sql_query = sql_response.strip()
+            
+            # Remove markdown code blocks if present
+            if "```sql" in sql_query:
+                sql_query = sql_query.split("```sql")[1].split("```")[0].strip()
+            elif "```" in sql_query:
+                sql_query = sql_query.split("```")[1].split("```")[0].strip()
+            
+            # Remove any extra text before or after the query
+            # Find the first SQL keyword
+            sql_keywords = ['SELECT', 'INSERT', 'UPDATE', 'DELETE']
+            for keyword in sql_keywords:
+                if keyword in sql_query.upper():
+                    start_idx = sql_query.upper().find(keyword)
+                    sql_query = sql_query[start_idx:]
+                    break
+            
+            # Find the semicolon and cut there
+            if ';' in sql_query:
+                end_idx = sql_query.find(';')
+                sql_query = sql_query[:end_idx + 1]
+            
+            logger.info(f"AI generated SQL: {sql_query}")
+            return sql_query
+            
+        except Exception as e:
+            logger.error(f"Failed to generate SQL with AI: {e}")
+            return None
+
+    def _format_sql_output(self, sql: str) -> str:
+        """Format SQL query for display to user."""
+        return f"\n🔍 [SQL Query Generated by AI]\n{sql}\n"
+
+    def _is_task_intent(self, intent: str) -> bool:
+        """Check if intent requires database operation."""
+        task_intents = {"add_task", "list_tasks", "delete_task", "complete_task"}
+        return intent in task_intents
+
+    # ============================================================
+    # MODIFIED: Main Processing - AI Generates Everything
+    # ============================================================
+
     def process_input(self, user_input: str) -> str:
         """
-        Process user input, route to appropriate handler, and return response.
+        Process user input with AI-powered SQL generation:
+        1. AI detects intent
+        2. AI generates SQL query
+        3. Execute query and return results
         """
         from utils.date_parser import get_current_time_str
         
         logger.info(f"Processing user input: {user_input[:100]}...")
         
-        # Pre-process for bulk operations (more reliable than LLM detection)
-        preprocessed = self._preprocess_bulk_operations(user_input)
-        if preprocessed:
-            intent, entities = preprocessed
-            logger.info(f"Pre-processed bulk operation: {intent} with entities {entities}")
-            
-            # Route directly to handler
-            if intent == "delete_task":
-                return self._handle_delete_task(entities, "")
-            elif intent == "complete_task":
-                return self._handle_complete_task(entities, "")
-        
         # Get current time for LLM context
         current_time = get_current_time_str()
+        
+        # ============================================================
+        # STEP 1: AI DETECTS INTENT (existing logic)
+        # ============================================================
         
         system_prompt = f"""
         You are TaskJarvis, a productivity assistant.
@@ -75,23 +200,28 @@ class TaskAssistant:
         
         CURRENT TIME: {current_time}
         
+        IMPORTANT: When extracting entities, convert all text fields to lowercase:
+        - title: always lowercase
+        - status: use 'pending', 'completed', 'in progress' (all lowercase)
+        - priority: use 'low', 'medium', 'high' (all lowercase)
+        
         Intents:
-        - add_task: Create a new task. Entities: title (REQUIRED), deadline (extract as "in X hours", "tomorrow" - NOT dates), priority
-        - list_tasks: Show tasks. Entities: status (optional).
-        - delete_task: Remove a task. Entities: id (int).
-        - complete_task: Mark task as done. Entities: id (int).
+        - add_task: Create a new task. Entities: title (REQUIRED, lowercase), deadline (optional), priority (optional, lowercase)
+        - list_tasks: Show tasks. Entities: status (optional, lowercase), priority (optional, lowercase).
+        - delete_task: Remove a task. Entities: id (int) or scope ("all").
+        - complete_task: Mark task as done. Entities: id (int) or scope ("all").
         - analytics: Show stats.
-        - unknown: If unclear or not task-related.
+        - unknown: If unclear or not task-related (normal conversation).
 
         CRITICAL: Respond with ONLY valid JSON. No markdown, no code blocks.
-        For deadlines: "one hour from now" → "in 1 hour"
         
         JSON format:
         {{"intent": "intent_name", "entities": {{}}, "response": "message"}}
         
         Examples:
         {{"intent": "list_tasks", "entities": {{}}, "response": "Here are your tasks."}}
-        {{"intent": "add_task", "entities": {{"title": "pick up phone", "deadline": "in 1 hour"}}, "response": "I'll add that task."}}
+        {{"intent": "add_task", "entities": {{"title": "buy groceries"}}, "response": "I'll add that task."}}
+        {{"intent": "unknown", "entities": {{}}, "response": "I'm a task management assistant. How can I help with your tasks?"}}
         """
         
         full_prompt = f"{system_prompt}\n\nUser Input: {user_input}"
@@ -122,223 +252,134 @@ class TaskAssistant:
             parsed = json.loads(cleaned_response)
             intent = parsed.get("intent")
             entities = parsed.get("entities", {})
+            ai_response = parsed.get("response", "")
             
-            logger.debug(f"Detected intent: {intent} | Entities: {entities}")
+            # Additional normalization as safety measure
+            entities = self._normalize_entities(entities)
+            
+            logger.info(f"AI detected intent: {intent} | Entities: {entities}")
             
         except json.JSONDecodeError as e:
             logger.error(f"Failed to parse LLM response as JSON: {e}")
             logger.error(f"Raw response was: {llm_response[:1000]}")
-            return "I'm having trouble understanding. Could you rephrase that?"
+            return "💬 Normal Conversation Mode\n\nI'm having trouble understanding. Could you rephrase that?"
         except Exception as e:
             logger.error(f"Error processing request: {e}")
-            logger.error(f"Raw response was: {llm_response[:1000] if 'llm_response' in locals() else 'N/A'}")
-            return f"Error processing request: {e}"
+            return f"💬 Normal Conversation Mode\n\nError processing request: {e}"
 
-        ai_response = parsed.get("response", "")
-
-        # Routing Logic
-        logger.debug(f"Routing to handler for intent: {intent}")
-        if intent == "add_task":
-            return self._handle_add_task(entities, ai_response)
-        elif intent == "list_tasks":
-            return self._handle_list_tasks(entities, ai_response)
-        elif intent == "delete_task":
-            return self._handle_delete_task(entities, ai_response)
-        elif intent == "complete_task":
-            return self._handle_complete_task(entities, ai_response)
-        elif intent == "analytics":
-            return self._handle_analytics(ai_response)
-        else:
-            logger.warning(f"Unknown intent: {intent}")
-            return ai_response
-
-    def _preprocess_bulk_operations(self, user_input: str):
-        """
-        Pre-process user input to detect bulk delete/complete operations.
-        Returns (intent, entities) tuple if bulk operation detected, None otherwise.
-        """
-        from assistant.time_parser import parse_time_range
+        # ============================================================
+        # STEP 2: MODE DETECTION
+        # ============================================================
         
-        text = user_input.lower().strip()
+        is_task_mode = self._is_task_intent(intent)
         
-        # Check for delete keywords
-        delete_keywords = ['delete', 'remove', 'clear']
-        complete_keywords = ['complete', 'finish', 'done', 'mark']
-        
-        is_delete = any(keyword in text for keyword in delete_keywords)
-        is_complete = any(keyword in text for keyword in complete_keywords)
-        
-        if not (is_delete or is_complete):
-            return None
-        
-        # Check for "all" scope
-        if ' all ' in f' {text} ' or text.startswith('all ') or text.endswith(' all'):
-            intent = "delete_task" if is_delete else "complete_task"
-            return (intent, {"scope": "all"})
-        
-        # Check for time range patterns
-        time_patterns = ['today', 'tomorrow', 'yesterday', 'this week', 'last week', 
-                        'this month', 'last month', 'next week', 'next month']
-        
-        for pattern in time_patterns:
-            if pattern in text:
-                # Try to parse the time range
-                time_range = parse_time_range(pattern)
-                if time_range:
-                    intent = "delete_task" if is_delete else "complete_task"
-                    return (intent, {"time_range": pattern})
-        
-        # No bulk operation detected
-        return None
-
-    def _handle_add_task(self, entities: Dict[str, Any], ai_msg: str) -> str:
-        from utils.date_parser import parse_deadline
-        
-        title = entities.get("title")
-        if not title:
-            return "I need a task title to add it."
-        
-        # Parse deadline using date parser
-        raw_deadline = entities.get("deadline")
-        parsed_deadline = parse_deadline(raw_deadline) if raw_deadline else None
-        
-        if raw_deadline and not parsed_deadline:
-            logger.warning(f"Failed to parse deadline: '{raw_deadline}'")
-            return f"I couldn't understand the deadline '{raw_deadline}'. Please use a format like 'tomorrow', 'in 2 hours', or 'YYYY-MM-DD HH:MM:SS'."
-        
-        task = Task(
-            title=title,
-            deadline=parsed_deadline,
-            priority=entities.get("priority", "Medium")
-        )
-        task_id = self.db.add_task(task)
-        
-        # Build response with parsed deadline info
-        response = f"{ai_msg}\n(Task ID: {task_id}"
-        if parsed_deadline:
-            response += f", Deadline: {parsed_deadline}"
-        response += ")"
-        
-        return response
-
-    def _handle_list_tasks(self, entities: Dict[str, Any], ai_msg: str) -> str:
-        from assistant.time_parser import parse_time_range
-        from utils.helpers import format_task_list_with_summary, format_stats_inline
-        
-        # Extract filter parameters
-        status = entities.get("status")
-        priority = entities.get("priority")
-        time_range_text = entities.get("time_range")
-        show_stats = entities.get("show_stats", False)
-        
-        # Parse time range if provided
-        time_range = None
-        if time_range_text:
-            time_range = parse_time_range(time_range_text)
-            if not time_range:
-                logger.warning(f"Could not parse time range: '{time_range_text}'")
-        
-        # Execute query based on filters (internal - not shown to user)
-        if time_range:
-            # Use comprehensive filtering with time range
-            tasks = self.db.get_tasks_with_filters(
-                status=status,
-                priority=priority,
-                time_range_start=time_range.start,
-                time_range_end=time_range.end
-            )
-            logger.info(f"Retrieved {len(tasks)} tasks for time range {time_range}")
-        else:
-            # Use basic filtering without time range
-            tasks = self.db.get_tasks(status=status, priority=priority)
-            logger.info(f"Retrieved {len(tasks)} tasks with filters: status={status}, priority={priority}")
-        
-        # Build context string for formatting
-        context_parts = []
-        if status:
-            context_parts.append(status.lower())
-        if priority:
-            context_parts.append(f"{priority.lower()} priority")
-        if time_range_text:
-            context_parts.append(f"for {time_range_text}")
-        
-        context = " ".join(context_parts) if context_parts else ""
-        
-        # Format output (only results shown to user, no query details)
-        output = format_task_list_with_summary(tasks, context)
-        
-        # Add statistics if requested
-        if show_stats and tasks:
-            stats = format_stats_inline(tasks)
-            output = f"{output}\n\n📊 Stats: {stats}"
-        
-        return output
-
-    def _handle_delete_task(self, entities: Dict[str, Any], ai_msg: str) -> str:
-        from assistant.time_parser import parse_time_range
-        
-        # Check for bulk operations
-        scope = entities.get("scope")
-        time_range_text = entities.get("time_range")
-        task_id = entities.get("id")
-        
-        # Handle scope-based bulk deletion ("delete all tasks")
-        if scope == "all":
-            count = self.db.delete_all_tasks()
-            logger.info(f"Deleted all tasks: {count} tasks removed")
-            return f"Deleted all {count} tasks."
-        
-        # Handle time-range based deletion ("delete today's tasks")
-        if time_range_text:
-            time_range = parse_time_range(time_range_text)
-            if not time_range:
-                return f"I couldn't understand the time range '{time_range_text}'."
+        if not is_task_mode:
+            # NORMAL CONVERSATION MODE
+            if intent == "analytics":
+                # Special case: analytics
+                return f"📊 Analytics Mode\n\n{self._handle_analytics(ai_response)}"
             
-            count = self.db.delete_tasks_in_range(time_range.start, time_range.end)
-            logger.info(f"Deleted {count} tasks in range {time_range}")
-            return f"Deleted {count} tasks for {time_range_text}."
+            logger.info(f"Normal Conversation Mode: {intent}")
+            return f"💬 Normal Conversation Mode\n\n{ai_response}"
         
-        # Handle single task deletion by ID
-        if not task_id:
-            return "Which task ID should I delete?"
+        # ============================================================
+        # STEP 3: AI GENERATES SQL QUERY
+        # ============================================================
         
-        self.db.delete_task(task_id)
-        logger.info(f"Deleted task ID: {task_id}")
-        return ai_msg
-
-    def _handle_complete_task(self, entities: Dict[str, Any], ai_msg: str) -> str:
-        from assistant.time_parser import parse_time_range
+        logger.info(f"Task Manager Mode: {intent}")
+        sql_query = self._ask_ai_for_sql(intent, entities, user_input)
         
-        # Check for bulk operations
-        scope = entities.get("scope")
-        time_range_text = entities.get("time_range")
-        task_id = entities.get("id")
+        if not sql_query:
+            return f"❌ Failed to generate SQL query. Please try again."
         
-        # Handle scope-based bulk completion ("complete all tasks")
-        if scope == "all":
-            count = self.db.complete_all_tasks()
-            logger.info(f"Completed all tasks: {count} tasks marked as completed")
-            return f"Marked all {count} tasks as completed."
+        sql_display = self._format_sql_output(sql_query) if self.show_sql else ""
         
-        # Handle time-range based completion ("complete today's tasks")
-        if time_range_text:
-            time_range = parse_time_range(time_range_text)
-            if not time_range:
-                return f"I couldn't understand the time range '{time_range_text}'."
+        # ============================================================
+        # STEP 4: EXECUTE THE AI-GENERATED SQL
+        # ============================================================
+        
+        try:
+            result = self._execute_sql_and_format(intent, sql_query, entities, ai_response)
+            return f"📋 Task Manager Mode{sql_display}\n✅ Result:\n{result}"
             
-            count = self.db.complete_tasks_in_range(time_range.start, time_range.end)
-            logger.info(f"Completed {count} tasks in range {time_range}")
-            return f"Marked {count} tasks as completed for {time_range_text}."
+        except Exception as e:
+            logger.error(f"Error executing SQL: {e}")
+            return f"📋 Task Manager Mode{sql_display}\n❌ Error: {str(e)}"
+
+    # ============================================================
+    # SINGLE SQL EXECUTION FUNCTION
+    # ============================================================
+    
+    def _execute_sql_and_format(self, intent: str, sql_query: str, entities: Dict[str, Any], ai_msg: str) -> str:
+        """
+        Execute the AI-generated SQL query directly on the database.
+        Single function handles ALL operations - no routing needed!
+        """
+        import sqlite3
         
-        # Handle single task completion by ID
-        if not task_id:
-            return "Which task ID should I complete?"
-        
-        self.db.update_task(task_id, status="Completed")
-        logger.info(f"Completed task ID: {task_id}")
-        return ai_msg
+        try:
+            # Get database connection
+            conn = self.db.conn
+            cursor = conn.cursor()
+            
+            # Execute the AI-generated SQL
+            cursor.execute(sql_query)
+            conn.commit()
+            
+            # Format response based on query type
+            sql_upper = sql_query.upper().strip()
+            
+            if sql_upper.startswith('INSERT'):
+                # Get the ID of inserted task
+                task_id = cursor.lastrowid
+                return f"{ai_msg}\n✓ Task added successfully (ID: {task_id})"
+            
+            elif sql_upper.startswith('SELECT'):
+                # Fetch and format results
+                rows = cursor.fetchall()
+                
+                if not rows:
+                    return "No tasks found."
+                
+                # Format as a table
+                output = f"{ai_msg}\n\n"
+                output += "ID | Title | Status | Priority | Deadline | Created\n"
+                output += "-" * 70 + "\n"
+                
+                for row in rows:
+                    task_id = row[0]
+                    title = row[1]
+                    status = row[2] if len(row) > 2 else 'pending'
+                    priority = row[3] if len(row) > 3 else 'medium'
+                    deadline = row[4] if len(row) > 4 else 'None'
+                    created = row[5] if len(row) > 5 else 'N/A'
+                    
+                    output += f"{task_id} | {title[:30]} | {status} | {priority} | {deadline} | {created}\n"
+                
+                return output
+            
+            elif sql_upper.startswith('UPDATE'):
+                # Get number of updated rows
+                affected = cursor.rowcount
+                return f"{ai_msg}\n✓ {affected} task(s) updated successfully"
+            
+            elif sql_upper.startswith('DELETE'):
+                # Get number of deleted rows
+                affected = cursor.rowcount
+                return f"{ai_msg}\n✓ {affected} task(s) deleted successfully"
+            
+            else:
+                return f"{ai_msg}\n✓ Query executed successfully"
+                
+        except sqlite3.Error as e:
+            logger.error(f"SQL execution error: {e}")
+            return f"❌ Database error: {str(e)}"
+        except Exception as e:
+            logger.error(f"Unexpected error executing SQL: {e}")
+            return f"❌ Error: {str(e)}"
 
     def _handle_analytics(self, ai_msg: str) -> str:
+        """Analytics is special - not a direct SQL operation"""
         tasks = self.db.get_tasks()
         stats = self.dashboard.get_stats(tasks)
         self.dashboard.generate_chart(tasks)
