@@ -1,24 +1,24 @@
 import json
 import os
+import sqlite3
 from typing import Dict, Any, Optional, Tuple
 from assistant.llm.factory import LLMFactory
 from config import settings
 from tasks.task_db import TaskDB
 from tasks.task import Task
 from analytics.dashboard import Dashboard
-from utils.helpers import format_task_output
 from taskjarvis_logging.logger import get_logger
 
 logger = get_logger(__name__)
 
 class TaskAssistant:
-    def __init__(self, db: TaskDB):
+    def __init__(self, db: TaskDB, provider: Optional[str] = None, model_name: Optional[str] = None):
         self.db = db
         self.dashboard = Dashboard()
         self.show_sql = True  # Toggle SQL visibility
         
-        # Get LLM provider from settings
-        provider = settings.LLM_PROVIDER
+        # Get LLM provider (argument overrides settings)
+        provider = provider or settings.LLM_PROVIDER
         
         # Get API key based on provider
         api_key_map = {
@@ -29,15 +29,16 @@ class TaskAssistant:
         }
         api_key = api_key_map.get(provider.upper())
         
-        # Get model name based on provider
-        model_map = {
-            "OPENAI": settings.OPENAI_MODEL,
-            "ANTHROPIC": settings.ANTHROPIC_MODEL,
-            "GEMINI": settings.GEMINI_MODEL,
-            "OLLAMA": settings.OLLAMA_MODEL,
-            "HUGGINGFACE": settings.HUGGINGFACE_MODEL
-        }
-        model_name = model_map.get(provider.upper())
+        # Get model name (argument overrides settings)
+        if not model_name:
+            model_map = {
+                "OPENAI": settings.OPENAI_MODEL,
+                "ANTHROPIC": settings.ANTHROPIC_MODEL,
+                "GEMINI": settings.GEMINI_MODEL,
+                "OLLAMA": settings.OLLAMA_MODEL,
+                "HUGGINGFACE": settings.HUGGINGFACE_MODEL
+            }
+            model_name = model_map.get(provider.upper())
         
         # Create LLM client with fallback to Mock
         self.llm_client = LLMFactory.create_with_fallback(
@@ -315,8 +316,6 @@ Now generate the SQL query:
         Execute the AI-generated SQL query directly on the database.
         Single function handles ALL operations - no routing needed!
         """
-        import sqlite3
-        
         try:
             # Get database connection
             conn = self.db.conn
