@@ -8,6 +8,7 @@
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![UI Framework](https://img.shields.io/badge/UI-CustomTkinter-blueviolet)](https://github.com/TomSchimansky/CustomTkinter)
+[![Web UI](https://img.shields.io/badge/Web%20UI-Next.js-black)](https://nextjs.org/)
 
 </div>
 
@@ -17,7 +18,7 @@
 
 **TaskJarvis** is a sophisticated, AI-driven productivity suite designed to bridge the gap between natural language intent and structured task management. Unlike traditional to-do lists, TaskJarvis understands context, priority, and nuance, allowing users to manage their workload through natural conversation.
 
-Built with a **modern, glassmorphic interface** and powered by a **multi-provider LLM architecture**, it offers a premium desktop experience that integrates seamlessly with your workflow. Whether you prefer cloud-based intelligence (OpenAI, Gemini, Anthropic) or local privacy (Ollama), TaskJarvis adapts to your needs.
+Built with a **modern, glassmorphic interface** and powered by a **multi-provider LLM architecture**, it offers both a premium desktop experience and a modern web interface. Whether you prefer cloud-based intelligence (OpenAI, Gemini, Anthropic) or local privacy (Ollama), TaskJarvis adapts to your needs.
 
 ---
 
@@ -47,7 +48,9 @@ Core components like `TaskDB` are injected into dependent services (`TaskAssista
 
 ### Core Frameworks
 - **Language**: Python 3.10+
-- **GUI Framework**: **CustomTkinter** (Modern wrapper for Tkinter)
+- **Desktop UI**: **CustomTkinter** (Modern wrapper for Tkinter)
+- **Web UI**: **Next.js 16** with React 19 and TypeScript
+- **API**: **FastAPI** (High-performance REST API)
 - **Database**: **SQLite** (Serverless, zero-configuration storage)
 - **NLP**: **SpaCy** (Entity recognition fallback) & **LLMs** (Semantic understanding)
 
@@ -111,10 +114,23 @@ TaskJarvis features a bespoke **"Deep Space"** design language, inspired by mode
    OLLAMA_HOST=http://localhost:11434
    ```
 
-4. **Launch**
+4. **Launch the API Server**
+   ```bash
+   uvicorn api.main:app --reload
+   ```
+
+5. **Launch the Desktop UI** (Optional)
    ```bash
    python ui/app.py
    ```
+
+6. **Launch the Web UI** (Optional)
+   ```bash
+   cd web-ui
+   npm install
+   npm run dev
+   ```
+   Then open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
