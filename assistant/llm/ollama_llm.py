@@ -23,7 +23,7 @@ class OllamaLLMClient(BaseLLMClient):
         
         Args:
             api_key: Not used for Ollama (local)
-            model_name: Model to use (default: llama2)
+            model_name: Model to use (default: llama3)
             host: Ollama server host
         
         Raises:
@@ -43,7 +43,7 @@ class OllamaLLMClient(BaseLLMClient):
     
     @property
     def default_model(self) -> str:
-        return "llama2"
+        return "llama3"
     
     def generate(self, prompt: str) -> str:
         """

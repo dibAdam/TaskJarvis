@@ -102,6 +102,7 @@ IMPORTANT RULES:
 - ALL text values MUST be in lowercase (title, status, priority)
 - Use lowercase for: 'pending', 'completed', 'low', 'medium', 'high'
 - NEVER use uppercase or mixed case like 'Pending', 'Medium', 'Completed'
+- Always include created_at and updated_at in INSERT queries
 
 USER REQUEST: {user_input}
 DETECTED INTENT: {intent}
@@ -113,7 +114,7 @@ INSTRUCTIONS:
 - No markdown, no explanations, no code blocks
 - Use single quotes for strings
 - ALL string values must be lowercase
-- For INSERT: include title (lowercase), and optionally deadline, priority (lowercase), status (lowercase). DO NOT include id, include created_at and updated_at.
+- For INSERT: include title (lowercase), and optionally deadline, priority (lowercase), status (lowercase). DO NOT include id.
 - For SELECT: use WHERE clauses with lowercase values (status, priority)
 - For UPDATE: set status='completed' for complete operations (lowercase)
 - For DELETE: use WHERE id = X or delete all if scope is "all"
