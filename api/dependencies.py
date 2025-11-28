@@ -1,7 +1,6 @@
 from functools import lru_cache
 from tasks.task_db import TaskDB
 from assistant.assistant import TaskAssistant
-from config import settings
 
 # Global instances
 _db_instance = None

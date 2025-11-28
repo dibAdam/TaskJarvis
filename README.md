@@ -51,7 +51,8 @@ Core components like `TaskDB` are injected into dependent services (`TaskAssista
 - **Desktop UI**: **CustomTkinter** (Modern wrapper for Tkinter)
 - **Web UI**: **Next.js 16** with React 19 and TypeScript
 - **API**: **FastAPI** (High-performance REST API)
-- **Database**: **SQLite** (Serverless, zero-configuration storage)
+- **Database**: **SQLite** (Local mode) / **PostgreSQL** (Cloud mode)
+- **ORM**: **SQLAlchemy 2.0** with Alembic migrations
 - **NLP**: **SpaCy** (Entity recognition fallback) & **LLMs** (Semantic understanding)
 
 ### AI & Intelligence
@@ -61,8 +62,34 @@ Core components like `TaskDB` are injected into dependent services (`TaskAssista
 - **Ollama**: Local, privacy-focused model execution (Llama 2, Mistral).
 - **HuggingFace**: Access to open-source models.
 
+### Multi-User Cloud Features (v2.0)
+- **Authentication**: JWT-based authentication with refresh tokens
+- **Security**: bcrypt password hashing, secure token management
+- **Real-Time Sync**: WebSocket connections for instant updates
+- **Collaboration**: Shared workspaces with role-based access control
+- **Scalability**: PostgreSQL support for production deployments
+
 ### Analytics & Visualization
 - **Matplotlib**: Real-time rendering of productivity charts and distribution graphs embedded directly in the UI.
+
+---
+
+## ✨ Features
+
+### Core Features
+- **Natural Language Processing**: Create, update, and manage tasks using conversational language
+- **AI-Powered Assistant**: Multiple LLM providers for intelligent task management
+- **Smart Analytics**: Productivity insights and task distribution visualization
+- **Modern UI**: Glassmorphic design with smooth animations and micro-interactions
+
+### Multi-User Features (v2.0)
+- **User Authentication**: Secure registration and login with JWT tokens
+- **Workspaces**: Create shared workspaces for team collaboration
+- **Task Assignment**: Assign tasks to team members
+- **Real-Time Sync**: Instant updates across all devices via WebSocket
+- **Invitation System**: Invite team members via secure tokens
+- **Role-Based Access**: Owner, Admin, and Member roles with appropriate permissions
+- **Dual Mode**: Seamlessly switch between local (single-user) and cloud (multi-user) modes
 
 ---
 
@@ -86,7 +113,8 @@ TaskJarvis features a bespoke **"Deep Space"** design language, inspired by mode
 
 ### Prerequisites
 - Python 3.10 or higher
-- (Optional) API Keys for cloud providers
+- (Optional) PostgreSQL for cloud mode
+- (Optional) API Keys for cloud LLM providers
 
 ### Installation
 
@@ -104,8 +132,13 @@ TaskJarvis features a bespoke **"Deep Space"** design language, inspired by mode
 
 3. **Configuration**
    Create a `.env` file in the root directory:
+   
+   **For Local Mode (Single-User)**:
    ```env
-   # Cloud Providers (Optional)
+   # App Mode (local or cloud)
+   APP_MODE=local
+   
+   # LLM Provider (optional)
    OPENAI_API_KEY=sk-...
    GEMINI_API_KEY=AIza...
    ANTHROPIC_API_KEY=sk-ant...
@@ -113,15 +146,39 @@ TaskJarvis features a bespoke **"Deep Space"** design language, inspired by mode
    # Local Setup
    OLLAMA_HOST=http://localhost:11434
    ```
-
-4. **Launch the API Server**
-   ```bash
-   uvicorn api.main:app --reload
+   
+   **For Cloud Mode (Multi-User)**:
+   ```env
+   # App Mode
+   APP_MODE=cloud
+   
+   # PostgreSQL Database
+   DATABASE_URL=postgresql://user:password@localhost:5432/taskjarvis
+   
+   # JWT Secret (generate with: python -c "import secrets; print(secrets.token_urlsafe(32))")
+   JWT_SECRET_KEY=your-very-secure-secret-key-here
+   
+   # LLM Provider (optional)
+   OPENAI_API_KEY=sk-...
+   GEMINI_API_KEY=AIza...
    ```
 
-5. **Launch the Desktop UI** (Optional)
+4. **Database Setup (Cloud Mode Only)**
    ```bash
-   python ui/app.py
+   # Initialize Alembic migrations
+   alembic revision --autogenerate -m "Initial schema"
+   
+   # Apply migrations
+   alembic upgrade head
+   ```
+
+5. **Launch the API Server**
+   ```bash
+   # For local mode (uses api/main.py)
+   uvicorn api.main:app --reload
+   
+   # For cloud mode (uses backend/main.py)
+   uvicorn backend.main:app --reload
    ```
 
 6. **Launch the Web UI** (Optional)
@@ -134,20 +191,21 @@ TaskJarvis features a bespoke **"Deep Space"** design language, inspired by mode
 
 ---
 
+## 📚 Documentation
+
+- **[API Documentation](API_DOCUMENTATION.md)**: Complete API reference with examples
+- **[Migration Guide](MIGRATION_GUIDE.md)**: Upgrade from local to cloud mode
+- **[Implementation Plan](implementation_plan.md)**: Technical architecture details
+
+---
+
 ## 📘 User Guide
 
-### 1. Provider Selection
-Upon startup, you will be presented with a configuration dialog.
-- **Cloud Models**: Select OpenAI, Gemini, or Anthropic for best performance.
-- **Local/Offline**: Select **Ollama** or **Mock** to run without internet or API keys.
+### Local Mode (Single-User)
 
-### 2. The Dashboard
-The main interface is divided into three zones:
-- **Sidebar**: Navigation and quick actions.
-- **Task Feed**: Central view of your active tasks.
-- **Composer**: Bottom input area for adding tasks or chatting.
+In local mode, TaskJarvis works as a personal task manager with no authentication required.
 
-### 3. Natural Language Commands
+#### Natural Language Commands
 TaskJarvis understands intent. Try these commands in the **Ask** or **Task** input:
 
 | Intent | Example Command |
@@ -158,10 +216,89 @@ TaskJarvis understands intent. Try these commands in the **Ask** or **Task** inp
 | **Delete** | "Delete task #4." |
 | **Analysis** | "How is my productivity looking today?" |
 
-### 4. Analytics
+#### Analytics
 Click the **Insights** (📊) button to open the analytics modal.
 - **Completion Rate**: Visual pie chart of Pending vs. Completed tasks.
 - **Priority Breakdown**: See distribution of High/Medium/Low priority tasks.
+
+### Cloud Mode (Multi-User)
+
+In cloud mode, TaskJarvis enables team collaboration with authentication and workspaces.
+
+#### 1. Authentication
+
+**Register**:
+```bash
+POST /auth/register
+{
+  "email": "you@example.com",
+  "username": "yourusername",
+  "password": "securepassword"
+}
+```
+
+**Login**:
+```bash
+POST /auth/login
+{
+  "email_or_username": "yourusername",
+  "password": "securepassword"
+}
+```
+
+Save the returned `access_token` and `refresh_token`.
+
+#### 2. Workspaces
+
+**Create a Workspace**:
+```bash
+POST /workspaces/
+Authorization: Bearer YOUR_ACCESS_TOKEN
+{
+  "name": "My Team",
+  "description": "Team workspace"
+}
+```
+
+**Invite Members**:
+```bash
+POST /workspaces/{workspace_id}/invite
+Authorization: Bearer YOUR_ACCESS_TOKEN
+{
+  "email": "teammate@example.com"
+}
+```
+
+Share the returned invitation token with your teammate.
+
+**Join a Workspace**:
+```bash
+POST /workspaces/join/{invitation_token}
+Authorization: Bearer YOUR_ACCESS_TOKEN
+```
+
+#### 3. Task Management
+
+**Create Task in Workspace**:
+```bash
+POST /tasks/
+Authorization: Bearer YOUR_ACCESS_TOKEN
+{
+  "title": "Complete project",
+  "workspace_id": 1,
+  "assigned_to_id": 2
+}
+```
+
+**Real-Time Sync**:
+Connect to WebSocket for instant updates:
+```javascript
+const ws = new WebSocket(`ws://localhost:8000/ws/1?token=${accessToken}`);
+ws.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+  // Handle task_created, task_updated, task_deleted events
+};
+```
 
 ---
 

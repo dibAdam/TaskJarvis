@@ -4,10 +4,6 @@ from pathlib import Path
 # Base Directory
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Database
-DB_NAME = "tasks.db"
-DB_PATH = BASE_DIR / DB_NAME
-
 # Notifications
 NOTIFICATION_TIMEOUT = 10  # seconds
 
@@ -36,3 +32,17 @@ ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-3-5-sonnet-20241022")
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-pro")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama2")
 HUGGINGFACE_MODEL = os.getenv("HUGGINGFACE_MODEL", "meta-llama/Llama-2-7b-chat-hf")
+
+# PostgreSQL Database (required)
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL environment variable is required")
+
+# JWT Configuration
+JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-secret-key-change-in-production")
+JWT_ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 15
+REFRESH_TOKEN_EXPIRE_DAYS = 7
+
+# WebSocket Configuration
+WS_HEARTBEAT_INTERVAL = 30  # seconds

@@ -1,5 +1,73 @@
 import json
 import os
+import json
+import os
+from typing import Dict, Any, Optional, Tuple
+from typing import Dict, Any, Optional, Tuple
+from assistant.llm.factory import LLMFactory
+from config import settings
+from tasks.task_db import TaskDB
+from tasks.task import Task
+from analytics.dashboard import Dashboard
+from taskjarvis_logging.logger import get_logger
+
+logger = get_logger(__name__)
+
+class TaskAssistant:
+    def __init__(self, db: TaskDB, provider: Optional[str] = None, model_name: Optional[str] = None):
+        self.db = db
+        self.dashboard = Dashboard()
+        self.show_sql = True  # Toggle SQL visibility
+        
+        # Get LLM provider (argument overrides settings)
+        provider = provider or settings.LLM_PROVIDER
+        
+        # Get API key based on provider
+        api_key_map = {
+            "OPENAI": settings.OPENAI_API_KEY,
+            "ANTHROPIC": settings.ANTHROPIC_API_KEY,
+            "GEMINI": settings.GEMINI_API_KEY,
+            "HUGGINGFACE": settings.HUGGINGFACE_API_KEY
+        }
+        api_key = api_key_map.get(provider.upper())
+        
+        # Get model name (argument overrides settings)
+        if not model_name:
+            model_map = {
+                "OPENAI": settings.OPENAI_MODEL,
+                "ANTHROPIC": settings.ANTHROPIC_MODEL,
+                "GEMINI": settings.GEMINI_MODEL,
+                "OLLAMA": settings.OLLAMA_MODEL,
+                "HUGGINGFACE": settings.HUGGINGFACE_MODEL
+            }
+            model_name = model_map.get(provider.upper())
+        
+        # Create LLM client with fallback to Mock
+        self.llm_client = LLMFactory.create_with_fallback(
+            provider=provider,
+            api_key=api_key,
+            model_name=model_name,
+            host=settings.OLLAMA_HOST if provider.upper() == "OLLAMA" else None
+        )
+
+    # ============================================================
+    # LOWERCASE CONVERSION UTILITIES
+    # ============================================================
+    
+    def _normalize_text_fields(self, text: str) -> str:
+        """Convert text to lowercase for storage/queries."""
+        return text.lower().strip() if text else text
+    
+    def _normalize_entities(self, entities: Dict[str, Any]) -> Dict[str, Any]:
+        """Normalize all text fields in entities to lowercase."""
+        normalized = {}
+        for key, value in entities.items():
+            if isinstance(value, str) and key in ['title', 'status', 'priority']:
+                normalized[key] = self._normalize_text_fields(value)
+            else:
+                normalized[key] = value
+import json
+import os
 import sqlite3
 from typing import Dict, Any, Optional, Tuple
 from assistant.llm.factory import LLMFactory
@@ -85,14 +153,18 @@ class TaskAssistant:
         sql_generation_prompt = f"""
 You are an SQL expert. Generate ONLY the SQL query for this task management operation.
 
-DATABASE SCHEMA:
+DATABASE SCHEMA (PostgreSQL):
 CREATE TABLE tasks (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,
     title TEXT NOT NULL,
     status TEXT DEFAULT 'pending',
     priority TEXT DEFAULT 'medium',
-    deadline DATETIME,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    deadline TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    user_id INTEGER,
+    workspace_id INTEGER,
+    assigned_to_id INTEGER
 );
 
 IMPORTANT RULES:
@@ -317,25 +389,21 @@ Now generate the SQL query:
         Single function handles ALL operations - no routing needed!
         """
         try:
-            # Get database connection
-            conn = self.db.conn
-            cursor = conn.cursor()
-            
-            # Execute the AI-generated SQL
-            cursor.execute(sql_query)
-            conn.commit()
+            # Execute the AI-generated SQL using TaskDB's execute_query
+            result = self.db.execute_query(sql_query)
             
             # Format response based on query type
             sql_upper = sql_query.upper().strip()
             
             if sql_upper.startswith('INSERT'):
-                # Get the ID of inserted task
-                task_id = cursor.lastrowid
-                return f"{ai_msg}\n✓ Task added successfully (ID: {task_id})"
+                # For INSERT, we can't easily get the ID unless we use RETURNING
+                # But the AI might not generate RETURNING. 
+                # We'll just say task added.
+                return f"{ai_msg}\n✓ Task added successfully"
             
             elif sql_upper.startswith('SELECT'):
                 # Fetch and format results
-                rows = cursor.fetchall()
+                rows = result.fetchall()
                 
                 if not rows:
                     return "No tasks found."
@@ -346,6 +414,7 @@ Now generate the SQL query:
                 output += "-" * 70 + "\n"
                 
                 for row in rows:
+                    # SQLAlchemy rows are accessed by index or name
                     task_id = row[0]
                     title = row[1]
                     status = row[2] if len(row) > 2 else 'pending'
@@ -359,20 +428,17 @@ Now generate the SQL query:
             
             elif sql_upper.startswith('UPDATE'):
                 # Get number of updated rows
-                affected = cursor.rowcount
+                affected = result.rowcount
                 return f"{ai_msg}\n✓ {affected} task(s) updated successfully"
             
             elif sql_upper.startswith('DELETE'):
                 # Get number of deleted rows
-                affected = cursor.rowcount
+                affected = result.rowcount
                 return f"{ai_msg}\n✓ {affected} task(s) deleted successfully"
             
             else:
                 return f"{ai_msg}\n✓ Query executed successfully"
                 
-        except sqlite3.Error as e:
-            logger.error(f"SQL execution error: {e}")
-            return f"❌ Database error: {str(e)}"
         except Exception as e:
             logger.error(f"Unexpected error executing SQL: {e}")
             return f"❌ Error: {str(e)}"
