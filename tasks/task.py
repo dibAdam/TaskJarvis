@@ -10,6 +10,9 @@ class Task:
     deadline: Optional[str] = None
     status: str = "Pending"
     id: Optional[int] = None
+    recurrence_rule: Optional[str] = None
+    reminder_offset: Optional[int] = None
+    last_reminded_at: Optional[str] = None
 
     def to_dict(self):
         return asdict(self)

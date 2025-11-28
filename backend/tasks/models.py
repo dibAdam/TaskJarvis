@@ -15,6 +15,11 @@ class Task(Base, TimestampMixin):
     priority = Column(String, default="Medium")
     deadline = Column(DateTime, nullable=True)
     status = Column(String, default="Pending")
+
+    # Recurrence & Reminders
+    recurrence_rule = Column(String, nullable=True)
+    reminder_offset = Column(Integer, nullable=True)
+    last_reminded_at = Column(DateTime, nullable=True)
     
     # Multi-user fields
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)  # Nullable for backward compat

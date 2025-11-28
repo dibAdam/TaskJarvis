@@ -12,6 +12,9 @@ class TaskBase(BaseModel):
     priority: Optional[str] = "Medium"
     deadline: Optional[datetime] = None
     status: Optional[str] = "Pending"
+    recurrence_rule: Optional[str] = None
+    reminder_offset: Optional[int] = None
+    last_reminded_at: Optional[datetime] = None
 
 
 class TaskCreate(TaskBase):
@@ -27,6 +30,9 @@ class TaskUpdate(BaseModel):
     priority: Optional[str] = None
     deadline: Optional[datetime] = None
     status: Optional[str] = None
+    recurrence_rule: Optional[str] = None
+    reminder_offset: Optional[int] = None
+    last_reminded_at: Optional[datetime] = None
     assigned_to_id: Optional[int] = None
 
 
