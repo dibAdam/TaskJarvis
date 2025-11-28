@@ -70,9 +70,9 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onTaskUpdate }) =>
                             {msg.role === 'user' ? <User className="w-5 h-5" /> : <Bot className="w-5 h-5" />}
                         </div>
 
-                        <div className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm whitespace-pre-wrap ${msg.role === 'user'
-                            ? 'bg-blue-600 text-white rounded-tr-none'
-                            : 'bg-slate-700/50 text-slate-200 rounded-tl-none'
+                        <div className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm whitespace-pre-wrap scrollbar-hide ${msg.role === 'user'
+                            ? 'bg-blue-600 text-white rounded-tr-none overflow-x-scroll'
+                            : 'bg-slate-700/50 text-slate-200 rounded-tl-none overflow-x-scroll'
                             }`}>
                             {msg.content}
                         </div>

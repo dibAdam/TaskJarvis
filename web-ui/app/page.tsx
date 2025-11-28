@@ -88,7 +88,7 @@ export default function Home() {
       </header>
 
       {/* Main Layout */}
-      <div className="pt-24 px-4 md:px-8 pb-8 max-w-[1600px] mx-auto">
+      <div className="pt-24 px-4 md:px-8 pb-8 max-w-[1600px] mx-auto w-9/12 m-auto">
         <div className="lg:mr-[420px]">
           {/* Main Content Area */}
           <div className="space-y-6">
@@ -109,7 +109,7 @@ export default function Home() {
         </div>
 
         {/* Fixed Chat Interface - Right Side */}
-        <div className="fixed right-8 top-24 bottom-8 w-[400px] hidden lg:flex flex-col">
+        <div className="fixed right-8 top-24 bottom-8 w-[600px] hidden lg:flex flex-col">
           <ChatInterface onTaskUpdate={fetchTasks} />
         </div>
       </div>
