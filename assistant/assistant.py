@@ -1,74 +1,5 @@
 import json
 import os
-import json
-import os
-from typing import Dict, Any, Optional, Tuple
-from typing import Dict, Any, Optional, Tuple
-from assistant.llm.factory import LLMFactory
-from config import settings
-from tasks.task_db import TaskDB
-from tasks.task import Task
-from analytics.dashboard import Dashboard
-from taskjarvis_logging.logger import get_logger
-
-logger = get_logger(__name__)
-
-class TaskAssistant:
-    def __init__(self, db: TaskDB, provider: Optional[str] = None, model_name: Optional[str] = None):
-        self.db = db
-        self.dashboard = Dashboard()
-        self.show_sql = True  # Toggle SQL visibility
-        
-        # Get LLM provider (argument overrides settings)
-        provider = provider or settings.LLM_PROVIDER
-        
-        # Get API key based on provider
-        api_key_map = {
-            "OPENAI": settings.OPENAI_API_KEY,
-            "ANTHROPIC": settings.ANTHROPIC_API_KEY,
-            "GEMINI": settings.GEMINI_API_KEY,
-            "HUGGINGFACE": settings.HUGGINGFACE_API_KEY
-        }
-        api_key = api_key_map.get(provider.upper())
-        
-        # Get model name (argument overrides settings)
-        if not model_name:
-            model_map = {
-                "OPENAI": settings.OPENAI_MODEL,
-                "ANTHROPIC": settings.ANTHROPIC_MODEL,
-                "GEMINI": settings.GEMINI_MODEL,
-                "OLLAMA": settings.OLLAMA_MODEL,
-                "HUGGINGFACE": settings.HUGGINGFACE_MODEL
-            }
-            model_name = model_map.get(provider.upper())
-        
-        # Create LLM client with fallback to Mock
-        self.llm_client = LLMFactory.create_with_fallback(
-            provider=provider,
-            api_key=api_key,
-            model_name=model_name,
-            host=settings.OLLAMA_HOST if provider.upper() == "OLLAMA" else None
-        )
-
-    # ============================================================
-    # LOWERCASE CONVERSION UTILITIES
-    # ============================================================
-    
-    def _normalize_text_fields(self, text: str) -> str:
-        """Convert text to lowercase for storage/queries."""
-        return text.lower().strip() if text else text
-    
-    def _normalize_entities(self, entities: Dict[str, Any]) -> Dict[str, Any]:
-        """Normalize all text fields in entities to lowercase."""
-        normalized = {}
-        for key, value in entities.items():
-            if isinstance(value, str) and key in ['title', 'status', 'priority']:
-                normalized[key] = self._normalize_text_fields(value)
-            else:
-                normalized[key] = value
-import json
-import os
-import sqlite3
 from typing import Dict, Any, Optional, Tuple
 from assistant.llm.factory import LLMFactory
 from config import settings
@@ -182,7 +113,7 @@ INSTRUCTIONS:
 - No markdown, no explanations, no code blocks
 - Use single quotes for strings
 - ALL string values must be lowercase
-- For INSERT: include title (lowercase), and optionally deadline, priority (lowercase), status (lowercase)
+- For INSERT: include title (lowercase), and optionally deadline, priority (lowercase), status (lowercase). DO NOT include id, include created_at and updated_at.
 - For SELECT: use WHERE clauses with lowercase values (status, priority)
 - For UPDATE: set status='completed' for complete operations (lowercase)
 - For DELETE: use WHERE id = X or delete all if scope is "all"
@@ -208,6 +139,8 @@ Now generate the SQL query:
             
             # Clean up the response
             sql_query = sql_response.strip()
+
+            logger.info(f"Generated SQL query: {sql_query}")
             
             # Remove markdown code blocks if present
             if "```sql" in sql_query:
@@ -267,35 +200,34 @@ Now generate the SQL query:
         # STEP 1: AI DETECTS INTENT (existing logic)
         # ============================================================
         
-        system_prompt = f"""
-        You are TaskJarvis, a productivity assistant.
-        Analyze the user's input and extract the intent and entities.
-        
-        CURRENT TIME: {current_time}
-        
-        IMPORTANT: When extracting entities, convert all text fields to lowercase:
-        - title: always lowercase
-        - status: use 'pending', 'completed', 'in progress' (all lowercase)
-        - priority: use 'low', 'medium', 'high' (all lowercase)
-        
-        Intents:
-        - add_task: Create a new task. Entities: title (REQUIRED, lowercase), deadline (optional), priority (optional, lowercase)
-        - list_tasks: Show tasks. Entities: status (optional, lowercase), priority (optional, lowercase).
-        - delete_task: Remove a task. Entities: id (int) or scope ("all").
-        - complete_task: Mark task as done. Entities: id (int) or scope ("all").
-        - analytics: Show stats.
-        - unknown: If unclear or not task-related (normal conversation).
+        system_prompt = f"""You are TaskJarvis, a productivity assistant.
+Analyze the user's input and extract the intent and entities.
 
-        CRITICAL: Respond with ONLY valid JSON. No markdown, no code blocks.
-        
-        JSON format:
-        {{"intent": "intent_name", "entities": {{}}, "response": "message"}}
-        
-        Examples:
-        {{"intent": "list_tasks", "entities": {{}}, "response": "Here are your tasks."}}
-        {{"intent": "add_task", "entities": {{"title": "buy groceries"}}, "response": "I'll add that task."}}
-        {{"intent": "unknown", "entities": {{}}, "response": "I'm a task management assistant. How can I help with your tasks?"}}
-        """
+CURRENT TIME: {current_time}
+
+IMPORTANT: When extracting entities, convert all text fields to lowercase:
+- title: always lowercase
+- status: use 'pending', 'completed', 'in progress' (all lowercase)
+- priority: use 'low', 'medium', 'high' (all lowercase)
+
+Intents:
+- add_task: Create a new task. Entities: title (REQUIRED, lowercase), deadline (optional), priority (optional, lowercase)
+- list_tasks: Show tasks. Entities: status (optional, lowercase), priority (optional, lowercase).
+- delete_task: Remove a task. Entities: id (int) or scope ("all").
+- complete_task: Mark task as done. Entities: id (int) or scope ("all").
+- analytics: Show stats.
+- unknown: If unclear or not task-related (normal conversation).
+
+CRITICAL: Respond with ONLY valid JSON. No markdown, no code blocks.
+
+JSON format:
+{{"intent": "intent_name", "entities": {{}}, "response": "message"}}
+
+Examples:
+{{"intent": "list_tasks", "entities": {{}}, "response": "Here are your tasks."}}
+{{"intent": "add_task", "entities": {{"title": "buy groceries"}}, "response": "I'll add that task."}}
+{{"intent": "unknown", "entities": {{}}, "response": "I'm a task management assistant. How can I help with your tasks?"}}
+"""
         
         full_prompt = f"{system_prompt}\n\nUser Input: {user_input}"
         
