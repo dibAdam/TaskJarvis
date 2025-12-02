@@ -52,3 +52,7 @@ out/
 next-env.d.ts
 package-lock.json
 
+# debug files
+create_test_reminder.py
+debug_scheduler.py
+debug_reminders.py

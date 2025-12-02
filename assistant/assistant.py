@@ -298,6 +298,14 @@ Examples:
             # Additional normalization as safety measure
             entities = self._normalize_entities(entities)
             
+            # FALLBACK: Extract reminder_offset if AI didn't get it
+            if intent == "add_task" and "reminder_offset" not in entities:
+                from utils.reminder_parser import extract_reminder_offset
+                reminder_offset = extract_reminder_offset(user_input)
+                if reminder_offset is not None:
+                    entities["reminder_offset"] = reminder_offset
+                    logger.info(f"Fallback extracted reminder_offset: {reminder_offset} minutes")
+            
             logger.info(f"AI detected intent: {intent} | Entities: {entities}")
             
         except json.JSONDecodeError as e:

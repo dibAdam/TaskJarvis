@@ -55,7 +55,7 @@ class ReminderScheduler:
                 FROM tasks
                 WHERE deadline IS NOT NULL
                 AND reminder_offset IS NOT NULL
-                AND status != 'Completed'
+                AND LOWER(status) != 'completed'
                 AND (last_reminded_at IS NULL OR last_reminded_at < deadline - INTERVAL '1 minute' * reminder_offset)
             """)
             
@@ -116,7 +116,7 @@ class ReminderScheduler:
                        recurrence_rule, reminder_offset, user_id, workspace_id
                 FROM tasks
                 WHERE recurrence_rule IS NOT NULL
-                AND status = 'Completed'
+                AND LOWER(status) = 'completed'
                 AND deadline < :now
             """)
             
