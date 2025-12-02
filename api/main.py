@@ -8,8 +8,23 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from api.routes import tasks, assistant, analytics
+from scheduler.engine import get_scheduler
+from contextlib import asynccontextmanager
 
-app = FastAPI(title="TaskJarvis API", description="API for TaskJarvis AI Task Manager")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: Initialize and start the scheduler
+    scheduler = get_scheduler()
+    scheduler.start()
+    yield
+    # Shutdown: Stop the scheduler
+    scheduler.stop()
+
+app = FastAPI(
+    title="TaskJarvis API",
+    description="API for TaskJarvis AI Task Manager",
+    lifespan=lifespan
+)
 
 # Configure CORS
 app.add_middleware(
