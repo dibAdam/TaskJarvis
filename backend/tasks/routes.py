@@ -225,3 +225,37 @@ def import_tasks(
     db.commit()
     
     return {"message": f"Successfully imported {imported_count} tasks"}
+
+
+@router.get("/upcoming", response_model=List[TaskResponse])
+def get_upcoming_reminders(
+    hours: int = Query(48, description="Look ahead window in hours"),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get upcoming tasks with reminders"""
+    from datetime import timedelta
+    
+    now = datetime.utcnow()
+    threshold = now + timedelta(hours=hours)
+    
+    # Get tasks with deadlines in the next N hours that have reminders set
+    query = db.query(Task).filter(
+        Task.deadline.between(now, threshold),
+        Task.reminder_offset.isnot(None),
+        Task.status != 'completed'
+    )
+    
+    # Filter by user access
+    query = query.filter(
+        (Task.user_id == current_user.id) | 
+        (Task.workspace_id.in_(
+            db.query(WorkspaceMember.workspace_id).filter(
+                WorkspaceMember.user_id == current_user.id
+            )
+        ))
+    )
+    
+    tasks = query.order_by(Task.deadline.asc()).all()
+    return tasks
+

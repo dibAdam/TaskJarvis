@@ -91,6 +91,9 @@ CREATE TABLE tasks (
     status TEXT DEFAULT 'pending',
     priority TEXT DEFAULT 'medium',
     deadline TIMESTAMP,
+    recurrence_rule TEXT,
+    reminder_offset INTEGER,
+    last_reminded_at TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     user_id INTEGER,
@@ -109,19 +112,31 @@ DETECTED INTENT: {intent}
 EXTRACTED ENTITIES: {json.dumps(normalized_entities)}
 CURRENT TIME: {current_time}
 
+IMPORTANT DEADLINE RULES:
+- For relative deadlines, use: NOW() + INTERVAL 'X minutes' or INTERVAL 'X hours'
+- Examples: INTERVAL '3 minutes', INTERVAL '2 hours', INTERVAL '1 day'
+- NEVER use decimal numbers like INTERVAL 0.05 minute
+- Always use quotes around the interval value
+
 INSTRUCTIONS:
 - Generate ONLY the SQL query, nothing else
 - No markdown, no explanations, no code blocks
 - Use single quotes for strings
 - ALL string values must be lowercase
-- For INSERT: include title (lowercase), and optionally deadline, priority (lowercase), status (lowercase). DO NOT include id.
+- For INSERT: ALWAYS include created_at and updated_at with NOW()
+- For INSERT: include title (lowercase), and optionally deadline, priority (lowercase), status (lowercase), recurrence_rule, reminder_offset. DO NOT include id.
+- If recurrence_rule is provided, include it in INSERT (as string with quotes)
+- If reminder_offset is provided, include it in INSERT (as integer, no quotes)
 - For SELECT: use WHERE clauses with lowercase values (status, priority)
-- For UPDATE: set status='completed' for complete operations (lowercase)
+- For UPDATE: set status='completed' for complete operations (lowercase), and ALWAYS set updated_at = NOW()
 - For DELETE: use WHERE id = X or delete all if scope is "all"
 
 Examples:
 Intent: add_task, Entities: {{"title": "buy milk"}}
-Response: INSERT INTO tasks (title, status, priority) VALUES ('buy milk', 'pending', 'medium');
+Response: INSERT INTO tasks (title, status, priority, created_at, updated_at) VALUES ('buy milk', 'pending', 'medium', NOW(), NOW());
+
+Intent: add_task, Entities: {{"title": "test reminder", "reminder_offset": 1}}
+Response: INSERT INTO tasks (title, status, priority, reminder_offset, created_at, updated_at) VALUES ('test reminder', 'pending', 'medium', 1, NOW(), NOW());
 
 Intent: list_tasks, Entities: {{"status": "pending"}}
 Response: SELECT * FROM tasks WHERE LOWER(status) = 'pending';
@@ -130,7 +145,7 @@ Intent: delete_task, Entities: {{"id": 5}}
 Response: DELETE FROM tasks WHERE id = 5;
 
 Intent: complete_task, Entities: {{"id": 3}}
-Response: UPDATE tasks SET status = 'completed' WHERE id = 3;
+Response: UPDATE tasks SET status = 'completed', updated_at = NOW() WHERE id = 3;
 
 Now generate the SQL query:
 """
@@ -211,8 +226,27 @@ IMPORTANT: When extracting entities, convert all text fields to lowercase:
 - status: use 'pending', 'completed', 'in progress' (all lowercase)
 - priority: use 'low', 'medium', 'high' (all lowercase)
 
+RECURRENCE DETECTION:
+- Detect phrases like "every day", "daily", "every week", "weekly", "every month", "monthly"
+- Convert to recurrence_rule in RRULE format:
+  * "every day" or "daily" → "FREQ=DAILY;INTERVAL=1"
+  * "every week" or "weekly" → "FREQ=WEEKLY;INTERVAL=1"
+  * "every month" or "monthly" → "FREQ=MONTHLY;INTERVAL=1"
+  * "every Monday" → "FREQ=WEEKLY;BYDAY=MO"
+  * "every 2 days" → "FREQ=DAILY;INTERVAL=2"
+
+REMINDER DETECTION:
+- Detect phrases like "remind me X minutes/hours before", "with a X minute reminder", "alert me X before"
+- Convert to reminder_offset (integer, in minutes):
+  * "10 minutes before" → 10
+  * "with a 1 minute reminder" → 1
+  * "with a 5 minute reminder" → 5
+  * "1 hour before" → 60
+  * "2 hours before" → 120
+  * "remind me" (no time specified) → 15 (default)
+
 Intents:
-- add_task: Create a new task. Entities: title (REQUIRED, lowercase), deadline (optional), priority (optional, lowercase)
+- add_task: Create a new task. Entities: title (REQUIRED, lowercase), deadline (optional), priority (optional, lowercase), recurrence_rule (optional), reminder_offset (optional, integer)
 - list_tasks: Show tasks. Entities: status (optional, lowercase), priority (optional, lowercase).
 - delete_task: Remove a task. Entities: id (int) or scope ("all").
 - complete_task: Mark task as done. Entities: id (int) or scope ("all").
@@ -227,6 +261,7 @@ JSON format:
 Examples:
 {{"intent": "list_tasks", "entities": {{}}, "response": "Here are your tasks."}}
 {{"intent": "add_task", "entities": {{"title": "buy groceries"}}, "response": "I'll add that task."}}
+{{"intent": "add_task", "entities": {{"title": "team meeting", "recurrence_rule": "FREQ=WEEKLY;BYDAY=MO", "reminder_offset": 15}}, "response": "I'll add that recurring task with a reminder."}}
 {{"intent": "unknown", "entities": {{}}, "response": "I'm a task management assistant. How can I help with your tasks?"}}
 """
         
