@@ -1,3 +1,5 @@
+import { getStoredToken, refreshToken as refreshAuthToken, logout } from './auth';
+
 const API_BASE_URL = 'http://localhost:8000';
 
 export interface Task {
@@ -19,6 +21,55 @@ export interface AnalyticsResponse {
   chart_path?: string;
 }
 
+/**
+ * Get auth headers with current token
+ */
+function getAuthHeaders(): HeadersInit {
+  const token = getStoredToken();
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  };
+  
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  
+  return headers;
+}
+
+/**
+ * Fetch with automatic token refresh on 401
+ */
+async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Response> {
+  // Add auth headers
+  const headers = {
+    ...getAuthHeaders(),
+    ...options.headers,
+  };
+
+  let response = await fetch(url, { ...options, headers });
+
+  // If 401, try to refresh token and retry
+  if (response.status === 401) {
+    try {
+      await refreshAuthToken();
+      
+      // Retry with new token
+      const newHeaders = {
+        ...getAuthHeaders(),
+        ...options.headers,
+      };
+      response = await fetch(url, { ...options, headers: newHeaders });
+    } catch (error) {
+      // Refresh failed, logout user
+      logout();
+      throw new Error('Session expired. Please login again.');
+    }
+  }
+
+  return response;
+}
+
 export const api = {
   // Tasks
   getTasks: async (status?: string, priority?: string): Promise<Task[]> => {
@@ -26,15 +77,14 @@ export const api = {
     if (status) params.append('status', status);
     if (priority) params.append('priority', priority);
     
-    const res = await fetch(`${API_BASE_URL}/tasks/?${params.toString()}`);
+    const res = await fetchWithAuth(`${API_BASE_URL}/tasks/?${params.toString()}`);
     if (!res.ok) throw new Error('Failed to fetch tasks');
     return res.json();
   },
 
   createTask: async (task: Omit<Task, 'id'>): Promise<Task> => {
-    const res = await fetch(`${API_BASE_URL}/tasks/`, {
+    const res = await fetchWithAuth(`${API_BASE_URL}/tasks/`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(task),
     });
     if (!res.ok) throw new Error('Failed to create task');
@@ -42,9 +92,8 @@ export const api = {
   },
 
   updateTask: async (id: number, updates: Partial<Task>): Promise<Task> => {
-    const res = await fetch(`${API_BASE_URL}/tasks/${id}`, {
+    const res = await fetchWithAuth(`${API_BASE_URL}/tasks/${id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updates),
     });
     if (!res.ok) throw new Error('Failed to update task');
@@ -52,7 +101,7 @@ export const api = {
   },
 
   deleteTask: async (id: number): Promise<void> => {
-    const res = await fetch(`${API_BASE_URL}/tasks/${id}`, {
+    const res = await fetchWithAuth(`${API_BASE_URL}/tasks/${id}`, {
       method: 'DELETE',
     });
     if (!res.ok) throw new Error('Failed to delete task');
@@ -60,9 +109,8 @@ export const api = {
 
   // Assistant
   chat: async (message: string): Promise<ChatResponse> => {
-    const res = await fetch(`${API_BASE_URL}/assistant/chat`, {
+    const res = await fetchWithAuth(`${API_BASE_URL}/assistant/chat`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message }),
     });
     if (!res.ok) throw new Error('Failed to chat with assistant');
@@ -70,9 +118,8 @@ export const api = {
   },
 
   configure: async (provider: string, model_name?: string): Promise<void> => {
-    const res = await fetch(`${API_BASE_URL}/assistant/config`, {
+    const res = await fetchWithAuth(`${API_BASE_URL}/assistant/config`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ provider, model_name }),
     });
     if (!res.ok) throw new Error('Failed to configure assistant');
@@ -80,7 +127,7 @@ export const api = {
 
   // Analytics
   getAnalytics: async (): Promise<AnalyticsResponse> => {
-    const res = await fetch(`${API_BASE_URL}/analytics/`);
+    const res = await fetchWithAuth(`${API_BASE_URL}/analytics/`);
     if (!res.ok) throw new Error('Failed to fetch analytics');
     return res.json();
   }

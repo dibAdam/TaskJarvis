@@ -12,7 +12,7 @@ export const Dashboard: React.FC = () => {
             const res = await api.getAnalytics();
             setData(res);
         } catch (error) {
-            console.error('Failed to fetch analytics', error);
+            console.error(' analytics', error);
         } finally {
             setLoading(false);
         }

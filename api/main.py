@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from api.routes import tasks, assistant, analytics
+from backend.users import routes as auth_routes
 from scheduler.engine import get_scheduler
 from contextlib import asynccontextmanager
 
@@ -58,6 +59,7 @@ app.mount("/static", StaticFiles(directory="."), name="static")
 app.include_router(tasks.router)
 app.include_router(assistant.router)
 app.include_router(analytics.router)
+app.include_router(auth_routes.router)
 
 @app.get("/")
 def read_root():
