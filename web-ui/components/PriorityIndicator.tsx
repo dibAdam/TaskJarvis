@@ -43,11 +43,36 @@ export const PriorityIndicator: React.FC<PriorityIndicatorProps> = ({
             borderColor: 'rgba(59, 130, 246, 0.3)',
             icon: '🟢',
             label: 'Low Priority'
+        },
+        // Lowercase versions for backend compatibility
+        high: {
+            shape: 'circle',
+            color: 'rgb(248, 113, 113)',
+            bgColor: 'rgba(239, 68, 68, 0.1)',
+            borderColor: 'rgba(239, 68, 68, 0.3)',
+            icon: '🔴',
+            label: 'High Priority'
+        },
+        medium: {
+            shape: 'circle',
+            color: 'rgb(252, 211, 77)',
+            bgColor: 'rgba(251, 191, 36, 0.1)',
+            borderColor: 'rgba(251, 191, 36, 0.3)',
+            icon: '🟡',
+            label: 'Medium Priority'
+        },
+        low: {
+            shape: 'circle',
+            color: 'rgb(96, 165, 250)',
+            bgColor: 'rgba(59, 130, 246, 0.1)',
+            borderColor: 'rgba(59, 130, 246, 0.3)',
+            icon: '🟢',
+            label: 'Low Priority'
         }
     };
 
     // Normalize priority value and provide fallback
-    const normalizedPriority = (priority in config) ? priority : 'Medium';
+    const normalizedPriority = (priority in config) ? priority : 'medium';
     const { shape, color, bgColor, borderColor, icon, label } = config[normalizedPriority];
 
     const renderShape = () => {

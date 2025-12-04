@@ -38,25 +38,25 @@ export const TaskGroupHeader: React.FC<TaskGroupHeaderProps> = ({
             {/* Header */}
             <motion.button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="w-full flex items-center justify-between p-4 bg-slate-800/30 backdrop-blur-sm border border-slate-700/50 rounded-xl hover:bg-slate-800/50 hover:border-slate-600/50 transition-all duration-300 group"
+                className="w-full flex items-center justify-between py-2 px-3 bg-slate-800/30 backdrop-blur-sm border border-slate-700/50 rounded-lg hover:bg-slate-800/50 hover:border-slate-600/50 transition-all duration-300 group"
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
             >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                     {/* Chevron Icon */}
                     <motion.div
                         variants={groupHeaderVariants}
                         animate={isExpanded ? 'expanded' : 'collapsed'}
                     >
-                        <ChevronRight className="w-5 h-5 text-slate-400" />
+                        <ChevronRight className="w-4 h-4 text-slate-400" />
                     </motion.div>
 
                     {/* Group Icon */}
-                    <span className="text-2xl">{icon}</span>
+                    <span className="text-lg">{icon}</span>
 
                     {/* Group Name */}
                     <h3
-                        className="text-lg font-semibold"
+                        className="text-sm font-semibold"
                         style={{ color: accentColor }}
                     >
                         {name}
