@@ -41,7 +41,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, isOpen, 
             setDescription(task.description || '');
             setPriority((task.priority as 'High' | 'Medium' | 'Low') || 'Medium');
             setDeadline(formatDateForInput(task.deadline));
-            setStatus(task.status || 'Pending');
+            setStatus(task.status || 'pending');  // Lowercase to match new standard
         }
     }, [task]);
 
@@ -140,15 +140,25 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, isOpen, 
                                                 <Flag className="w-4 h-4" />
                                                 Priority
                                             </label>
-                                            <select
-                                                value={priority}
-                                                onChange={(e) => setPriority(e.target.value as 'High' | 'Medium' | 'Low')}
-                                                className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all cursor-pointer"
-                                            >
-                                                <option value="High">High Priority</option>
-                                                <option value="Medium">Medium Priority</option>
-                                                <option value="Low">Low Priority</option>
-                                            </select>
+                                            <div className="relative group">
+                                                <select
+                                                    value={priority}
+                                                    onChange={(e) => setPriority(e.target.value as 'High' | 'Medium' | 'Low')}
+                                                    className="w-full px-4 py-3 bg-gradient-to-br from-slate-800/90 to-slate-900/90 backdrop-blur-xl border-2 border-slate-700/50 rounded-xl text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 hover:border-slate-600/70 transition-all cursor-pointer appearance-none font-medium shadow-lg hover:shadow-purple-500/20"
+                                                    style={{
+                                                        backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+                                                        backgroundPosition: 'right 0.5rem center',
+                                                        backgroundRepeat: 'no-repeat',
+                                                        backgroundSize: '1.5em 1.5em',
+                                                        paddingRight: '2.5rem'
+                                                    }}
+                                                >
+                                                    <option value="High" className="bg-slate-900 text-red-400 font-semibold">🔴 High Priority</option>
+                                                    <option value="Medium" className="bg-slate-900 text-yellow-400 font-semibold">🟡 Medium Priority</option>
+                                                    <option value="Low" className="bg-slate-900 text-green-400 font-semibold">🟢 Low Priority</option>
+                                                </select>
+                                                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-500/0 via-blue-500/10 to-purple-500/0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                                            </div>
                                         </div>
 
                                         {/* Deadline */}
@@ -171,15 +181,25 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, isOpen, 
                                         <label className="block text-sm font-medium text-slate-300 mb-2">
                                             Status
                                         </label>
-                                        <select
-                                            value={status}
-                                            onChange={(e) => setStatus(e.target.value)}
-                                            className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all cursor-pointer"
-                                        >
-                                            <option value="Pending">Pending</option>
-                                            <option value="In Progress">In Progress</option>
-                                            <option value="Completed">Completed</option>
-                                        </select>
+                                        <div className="relative group">
+                                            <select
+                                                value={status}
+                                                onChange={(e) => setStatus(e.target.value)}
+                                                className="w-full px-4 py-3 bg-gradient-to-br from-slate-800/90 to-slate-900/90 backdrop-blur-xl border-2 border-slate-700/50 rounded-xl text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 hover:border-slate-600/70 transition-all cursor-pointer appearance-none font-medium shadow-lg hover:shadow-blue-500/20"
+                                                style={{
+                                                    backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+                                                    backgroundPosition: 'right 0.5rem center',
+                                                    backgroundRepeat: 'no-repeat',
+                                                    backgroundSize: '1.5em 1.5em',
+                                                    paddingRight: '2.5rem'
+                                                }}
+                                            >
+                                                <option value="pending" className="bg-slate-900 text-blue-400 font-semibold">⏳ Pending</option>
+                                                <option value="in progress" className="bg-slate-900 text-purple-400 font-semibold">⚡ In Progress</option>
+                                                <option value="completed" className="bg-slate-900 text-green-400 font-semibold">✅ Completed</option>
+                                            </select>
+                                            <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-500/0 via-cyan-500/10 to-blue-500/0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                                        </div>
                                     </div>
                                 </div>
                             </div>

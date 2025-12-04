@@ -36,7 +36,7 @@ export default function Home() {
 
   const handleComplete = async (id: number) => {
     try {
-      await api.updateTask(id, { status: 'Completed' });
+      await api.updateTask(id, { status: 'completed' });
       fetchTasks();
     } catch (error) {
       console.error('Failed to complete task', error);

@@ -28,7 +28,7 @@ export function groupTasksByTime(tasks: Task[]): TaskGroup[] {
 
   tasks.forEach(task => {
     // Completed tasks go to their own group
-    if (task.status === 'Completed') {
+    if (task.status === 'completed') {
       groups[4].tasks.push(task);
       return;
     }
@@ -75,7 +75,7 @@ export function groupTasksByPriority(tasks: Task[]): TaskGroup[] {
   ];
 
   tasks.forEach(task => {
-    if (task.status === 'Completed') return; // Skip completed tasks
+    if (task.status === 'completed') return; // Skip completed tasks
 
     switch (task.priority) {
       case 'High':
@@ -176,19 +176,19 @@ export function getTaskStats(tasks: Task[]): TaskStats {
 
   return {
     total: tasks.length,
-    completed: tasks.filter(t => t.status === 'Completed').length,
-    pending: tasks.filter(t => t.status !== 'Completed').length,
+    completed: tasks.filter(t => t.status === 'completed').length,
+    pending: tasks.filter(t => t.status !== 'completed').length,
     overdue: tasks.filter(t => {
-      if (t.status === 'Completed' || !t.deadline) return false;
+      if (t.status === 'completed' || !t.deadline) return false;
       return new Date(t.deadline) < today;
     }).length,
     today: tasks.filter(t => {
-      if (t.status === 'Completed' || !t.deadline) return false;
+      if (t.status === 'completed' || !t.deadline) return false;
       const deadline = new Date(t.deadline);
       const tomorrow = new Date(today);
       tomorrow.setDate(tomorrow.getDate() + 1);
       return deadline >= today && deadline < tomorrow;
     }).length,
-    highPriority: tasks.filter(t => t.status !== 'Completed' && t.priority === 'High').length
+    highPriority: tasks.filter(t => t.status !== 'completed' && t.priority === 'High').length
   };
 }

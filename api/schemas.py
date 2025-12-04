@@ -7,7 +7,7 @@ class TaskBase(BaseModel):
     description: Optional[str] = ""
     priority: Optional[str] = "Medium"
     deadline: Optional[str] = None
-    status: Optional[str] = "Pending"
+    status: Optional[str] = "pending"  # Lowercase for consistency
 
 class TaskCreate(TaskBase):
     pass

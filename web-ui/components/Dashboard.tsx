@@ -33,7 +33,7 @@ const columns: KanbanColumn[] = [
     {
         id: 'todo',
         title: 'To Do',
-        status: 'Pending',
+        status: 'pending',
         color: 'blue',
         gradient: 'from-blue-500/20 to-cyan-500/20',
         icon: <Clock className="w-5 h-5" />
@@ -41,7 +41,7 @@ const columns: KanbanColumn[] = [
     {
         id: 'inprogress',
         title: 'In Progress',
-        status: 'In Progress',
+        status: 'in progress',
         color: 'purple',
         gradient: 'from-purple-500/20 to-pink-500/20',
         icon: <Zap className="w-5 h-5" />
@@ -49,7 +49,7 @@ const columns: KanbanColumn[] = [
     {
         id: 'done',
         title: 'Done',
-        status: 'Completed',
+        status: 'completed',
         color: 'green',
         gradient: 'from-green-500/20 to-emerald-500/20',
         icon: <CheckCircle2 className="w-5 h-5" />
@@ -177,7 +177,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onUpdate, onDelete, onEdit })
                             whileTap={{ scale: 0.9 }}
                             onClick={(e) => {
                                 e.stopPropagation();
-                                const nextStatus = task.status === 'Pending' ? 'In Progress' : 'Completed';
+                                const nextStatus = task.status === 'pending' ? 'in progress' : 'completed';
                                 onUpdate(task.id, { status: nextStatus });
                             }}
                             className="p-1.5 rounded-lg bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 transition-colors"
@@ -333,7 +333,7 @@ export const Dashboard: React.FC = () => {
 
     const stats = {
         total: tasks.length,
-        completed: tasks.filter(t => t.status === 'Completed').length,
+        completed: tasks.filter(t => t.status === 'completed').length,
         inProgress: tasks.filter(t => t.status === 'In Progress').length,
         highPriority: tasks.filter(t => t.priority === 'High').length
     };

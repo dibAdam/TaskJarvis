@@ -18,12 +18,15 @@ def get_tasks(
 
 @router.post("/", response_model=TaskResponse)
 def create_task(task: TaskCreate, db: TaskDB = Depends(get_db)):
+    # Normalize status to lowercase
+    status = (task.status or "pending").lower()
+    
     new_task = Task(
         title=task.title,
         description=task.description,
         priority=task.priority,
         deadline=task.deadline,
-        status=task.status
+        status=status
     )
     task_id = db.add_task(new_task)
     new_task.id = task_id
@@ -38,6 +41,10 @@ def update_task(task_id: int, task_update: TaskUpdate, db: TaskDB = Depends(get_
     update_data = task_update.model_dump(exclude_unset=True)
     if not update_data:
         raise HTTPException(status_code=400, detail="No data to update")
+    
+    # Normalize status to lowercase if provided
+    if 'status' in update_data and update_data['status']:
+        update_data['status'] = update_data['status'].lower()
         
     db.update_task(task_id, **update_data)
     

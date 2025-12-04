@@ -114,7 +114,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                                 e.stopPropagation();
                                 onTaskClick(task);
                             }}
-                            className={`text-xs p-1.5 rounded cursor-pointer flex items-center gap-1.5 ${task.status === 'Completed'
+                            className={`text-xs p-1.5 rounded cursor-pointer flex items-center gap-1.5 ${task.status === 'completed'
                                 ? 'bg-emerald-500/20 text-emerald-300 line-through'
                                 : task.priority === 'High' || task.priority === 'high'
                                     ? 'bg-red-500/20 text-red-300 border-l-2 border-red-500'

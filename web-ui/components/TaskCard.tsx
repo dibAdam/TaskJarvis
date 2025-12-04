@@ -44,7 +44,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onComplete, onDelete, 
         return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     };
 
-    const isOverdue = task.deadline && task.status !== 'Completed' && new Date(task.deadline) < new Date();
+    const isOverdue = task.deadline && task.status !== 'completed' && new Date(task.deadline) < new Date();
 
     // Priority-based gradient and glow colors
     const priorityStyles = {
@@ -94,7 +94,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onComplete, onDelete, 
             className={`group relative bg-linear-to-br ${styles.gradient} backdrop-blur-sm border ${styles.border} rounded-2xl ${compact ? 'p-3' : 'p-6'
                 } transition-all duration-300 hover:shadow-2xl hover:${styles.glow} overflow-hidden cursor-grab active:cursor-grabbing
                 before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:rounded-l-2xl ${styles.accentBorder} before:opacity-60 hover:before:opacity-100 before:transition-opacity
-                ${task.status === 'Completed' ? 'opacity-60' : ''}`}
+                ${task.status === 'completed' ? 'opacity-60' : ''}`}
         >
             {/* Background Pattern */}
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.05),rgba(255,255,255,0))] pointer-events-none" />
@@ -176,7 +176,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onComplete, onDelete, 
                             <Star className={`w-4 h-4 ${isStarred ? 'fill-current' : ''}`} />
                         </motion.button>
 
-                        {task.status !== 'Completed' && (
+                        {task.status !== 'completed' && (
                             <motion.button
                                 onClick={handleComplete}
                                 className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition-colors"
@@ -202,7 +202,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onComplete, onDelete, 
 
                 {/* Title */}
                 <h3
-                    className={`${compact ? 'text-base' : 'text-2xl'} font-bold ${compact ? 'mb-1' : 'mb-3'} leading-tight tracking-tight transition-all ${task.status === 'Completed'
+                    className={`${compact ? 'text-base' : 'text-2xl'} font-bold ${compact ? 'mb-1' : 'mb-3'} leading-tight tracking-tight transition-all ${task.status === 'completed'
                         ? 'text-slate-500 line-through'
                         : 'text-slate-100 group-hover:text-white'
                         }`}
@@ -220,7 +220,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onComplete, onDelete, 
                 {/* Footer Metadata */}
                 <div className={`flex items-center gap-3 ${compact ? 'mt-2 pt-2' : 'mt-4 pt-4'} ${compact ? '' : 'border-t border-slate-700/50'}`}>
                     {/* Status Badge */}
-                    <span className={`text-xs font-medium px-2.5 py-1 rounded-lg ${task.status === 'Completed'
+                    <span className={`text-xs font-medium px-2.5 py-1 rounded-lg ${task.status === 'completed'
                         ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
                         : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
                         }`}>
