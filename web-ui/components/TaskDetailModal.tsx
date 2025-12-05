@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, Flag, FileText, Save } from 'lucide-react';
+import { X, Calendar, Flag, FileText, Save, Bell } from 'lucide-react';
 import { Task } from '@/lib/api';
 
 interface TaskDetailModalProps {
@@ -16,6 +16,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, isOpen, 
     const [priority, setPriority] = useState<'High' | 'Medium' | 'Low'>('Medium');
     const [deadline, setDeadline] = useState('');
     const [status, setStatus] = useState('Pending');
+    const [reminderOffset, setReminderOffset] = useState<number>(30);  // Default 30 minutes before
 
     // Convert ISO date string to datetime-local format (YYYY-MM-DDTHH:mm)
     const formatDateForInput = (isoString: string | undefined): string => {
@@ -42,6 +43,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, isOpen, 
             setPriority((task.priority as 'High' | 'Medium' | 'Low') || 'Medium');
             setDeadline(formatDateForInput(task.deadline));
             setStatus(task.status || 'Pending');
+            setReminderOffset(task.reminder_offset || 30);  // Default 30 minutes
         }
     }, [task]);
 
@@ -52,7 +54,8 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, isOpen, 
                 description,
                 priority,
                 deadline: deadline || undefined,
-                status
+                status,
+                reminder_offset: deadline ? reminderOffset : undefined  // Only save if deadline is set
             });
             onClose();
         }
@@ -165,6 +168,54 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, isOpen, 
                                             />
                                         </div>
                                     </div>
+
+                                    {/* Reminder Offset - Only show if deadline is set */}
+                                    {deadline && (
+                                        <div>
+                                            <label className="flex items-center gap-2 text-sm font-medium text-slate-300 mb-2">
+                                                <Bell className="w-4 h-4" />
+                                                Email Reminder
+                                            </label>
+                                            <p className="text-xs text-slate-400 mb-3">
+                                                Get notified before the deadline
+                                            </p>
+
+                                            {/* Quick select buttons */}
+                                            <div className="grid grid-cols-4 gap-2 mb-3">
+                                                {[15, 30, 60, 120].map((minutes) => (
+                                                    <motion.button
+                                                        key={minutes}
+                                                        type="button"
+                                                        onClick={() => setReminderOffset(minutes)}
+                                                        className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${reminderOffset === minutes
+                                                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
+                                                            : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700'
+                                                            }`}
+                                                        whileHover={{ scale: 1.05 }}
+                                                        whileTap={{ scale: 0.95 }}
+                                                    >
+                                                        {minutes < 60 ? `${minutes}m` : `${minutes / 60}h`}
+                                                    </motion.button>
+                                                ))}
+                                            </div>
+
+                                            {/* Custom input */}
+                                            <div className="flex items-center gap-2">
+                                                <input
+                                                    type="number"
+                                                    min="1"
+                                                    max="10080"
+                                                    value={reminderOffset}
+                                                    onChange={(e) => setReminderOffset(parseInt(e.target.value) || 30)}
+                                                    className="flex-1 px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                                    placeholder="Minutes"
+                                                />
+                                                <span className="text-sm text-slate-400 whitespace-nowrap">
+                                                    minutes before
+                                                </span>
+                                            </div>
+                                        </div>
+                                    )}
 
                                     {/* Status */}
                                     <div>
