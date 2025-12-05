@@ -133,7 +133,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onUpdate, onDelete, onEdit })
                         <h3 className="text-slate-200 font-semibold text-xs sm:text-sm line-clamp-2 flex-1 min-w-0">
                             {task.title}
                         </h3>
-                        <span className={`px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-lg text-[10px] sm:text-xs font-medium border ${priorityColors[task.priority as keyof typeof priorityColors]} flex-shrink-0`}>
+                        <span className={`px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-lg text-[10px] sm:text-xs font-medium border ${priorityColors[task.priority as keyof typeof priorityColors]} shrink-0`}>
                             {task.priority}
                         </span>
                     </div>
@@ -148,7 +148,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onUpdate, onDelete, onEdit })
                     {/* Deadline */}
                     {task.deadline && (
                         <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-slate-500">
-                            <Calendar className="w-3 h-3 flex-shrink-0" />
+                            <Calendar className="w-3 h-3 shrink-0" />
                             <span className="truncate">{new Date(task.deadline).toLocaleDateString()}</span>
                         </div>
                     )}
@@ -254,7 +254,7 @@ const StatCard: React.FC<StatCardProps> = ({ icon, label, value, color, gradient
                             {count}
                         </motion.p>
                     </div>
-                    <div className={`p-2 sm:p-3 rounded-xl bg-${color}-500/20 flex-shrink-0`}>
+                    <div className={`p-2 sm:p-3 rounded-xl bg-${color}-500/20 shrink-0`}>
                         {icon}
                     </div>
                 </div>
@@ -373,7 +373,7 @@ export const Dashboard: React.FC = () => {
             >
                 <div className="flex items-center gap-2 sm:gap-3">
                     <motion.div
-                        className="p-2 sm:p-3 rounded-xl bg-linear-to-br from-blue-600 to-purple-600 flex-shrink-0"
+                        className="p-2 sm:p-3 rounded-xl bg-linear-to-br from-blue-600 to-purple-600 shrink-0"
                         whileHover={{ scale: 1.1, rotate: 5 }}
                         whileTap={{ scale: 0.9 }}
                     >
@@ -446,7 +446,7 @@ export const Dashboard: React.FC = () => {
                                 <div className="relative z-10 mb-3 sm:mb-4">
                                     <div className="flex items-center justify-between mb-2">
                                         <div className="flex items-center gap-2 min-w-0 flex-1">
-                                            <div className={`p-1.5 sm:p-2 rounded-lg bg-${column.color}-500/20 text-${column.color}-400 flex-shrink-0`}>
+                                            <div className={`p-1.5 sm:p-2 rounded-lg bg-${column.color}-500/20 text-${column.color}-400 shrink-0`}>
                                                 {column.icon}
                                             </div>
                                             <h3 className="text-base sm:text-lg font-semibold text-slate-200 truncate">
@@ -456,7 +456,7 @@ export const Dashboard: React.FC = () => {
                                         <motion.div
                                             initial={{ scale: 0 }}
                                             animate={{ scale: 1 }}
-                                            className={`px-2 sm:px-3 py-1 rounded-full bg-${column.color}-500/20 text-${column.color}-400 text-xs sm:text-sm font-medium flex-shrink-0`}
+                                            className={`px-2 sm:px-3 py-1 rounded-full bg-${column.color}-500/20 text-${column.color}-400 text-xs sm:text-sm font-medium shrink-0`}
                                         >
                                             {columnTasks.length}
                                         </motion.div>

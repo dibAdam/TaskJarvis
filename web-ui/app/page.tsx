@@ -70,7 +70,7 @@ export default function Home() {
             {/* Left: Logo and Title */}
             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
               <motion.div
-                className="w-8 h-8 sm:w-10 sm:h-10 bg-linear-to-br from-blue-600 to-purple-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 flex-shrink-0"
+                className="w-8 h-8 sm:w-10 sm:h-10 bg-linear-to-br from-blue-600 to-purple-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0"
                 whileHover={{ scale: 1.05, rotate: 5 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -89,25 +89,25 @@ export default function Home() {
               <motion.button
                 onClick={() => setActiveTab('tasks')}
                 className={`relative flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 rounded-md sm:rounded-lg text-xs sm:text-sm font-medium transition-all z-10 ${activeTab === 'tasks'
-                    ? 'text-white'
-                    : 'text-slate-400 hover:text-slate-200'
+                  ? 'text-white'
+                  : 'text-slate-400 hover:text-slate-200'
                   }`}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <ListTodo className="w-4 h-4 flex-shrink-0" />
+                <ListTodo className="w-4 h-4 shrink-0" />
                 <span className="hidden min-[480px]:inline">Tasks</span>
               </motion.button>
               <motion.button
                 onClick={() => setActiveTab('dashboard')}
                 className={`relative flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 rounded-md sm:rounded-lg text-xs sm:text-sm font-medium transition-all z-10 ${activeTab === 'dashboard'
-                    ? 'text-white'
-                    : 'text-slate-400 hover:text-slate-200'
+                  ? 'text-white'
+                  : 'text-slate-400 hover:text-slate-200'
                   }`}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <LayoutDashboard className="w-4 h-4 flex-shrink-0" />
+                <LayoutDashboard className="w-4 h-4 shrink-0" />
                 <span className="hidden min-[480px]:inline">Board</span>
               </motion.button>
 
