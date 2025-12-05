@@ -46,6 +46,10 @@ class TaskAssistant:
             model_name=model_name,
             host=settings.OLLAMA_HOST if provider.upper() == "OLLAMA" else None
         )
+        
+        # User context (set by the API endpoint)
+        self.current_user_id: Optional[int] = None
+        self.current_user_email: Optional[str] = None
 
     # ============================================================
     # LOWERCASE CONVERSION UTILITIES
@@ -124,6 +128,7 @@ INSTRUCTIONS:
 - Use single quotes for strings
 - ALL string values must be lowercase
 - For INSERT: ALWAYS include created_at and updated_at with NOW()
+- For INSERT: ALWAYS include user_id with the current user's ID
 - For INSERT: include title (lowercase), and optionally deadline, priority (lowercase), status (lowercase), recurrence_rule, reminder_offset. DO NOT include id.
 - If recurrence_rule is provided, include it in INSERT (as string with quotes)
 - If reminder_offset is provided, include it in INSERT (as integer, no quotes)
@@ -133,10 +138,10 @@ INSTRUCTIONS:
 
 Examples:
 Intent: add_task, Entities: {{"title": "buy milk"}}
-Response: INSERT INTO tasks (title, status, priority, created_at, updated_at) VALUES ('buy milk', 'pending', 'medium', NOW(), NOW());
+Response: INSERT INTO tasks (title, status, priority, user_id, created_at, updated_at) VALUES ('buy milk', 'pending', 'medium', {self.current_user_id or 'NULL'}, NOW(), NOW());
 
 Intent: add_task, Entities: {{"title": "test reminder", "reminder_offset": 1}}
-Response: INSERT INTO tasks (title, status, priority, reminder_offset, created_at, updated_at) VALUES ('test reminder', 'pending', 'medium', 1, NOW(), NOW());
+Response: INSERT INTO tasks (title, status, priority, reminder_offset, user_id, created_at, updated_at) VALUES ('test reminder', 'pending', 'medium', 1, {self.current_user_id or 'NULL'}, NOW(), NOW());
 
 Intent: list_tasks, Entities: {{"status": "pending"}}
 Response: SELECT * FROM tasks WHERE LOWER(status) = 'pending';
