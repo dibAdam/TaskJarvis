@@ -8,6 +8,7 @@ class TaskBase(BaseModel):
     priority: Optional[str] = "Medium"
     deadline: Optional[str] = None
     status: Optional[str] = "pending"  # Lowercase for consistency
+    reminder_offset: Optional[int] = None  # Minutes before deadline to send reminder
 
 class TaskCreate(TaskBase):
     pass
@@ -18,6 +19,7 @@ class TaskUpdate(BaseModel):
     priority: Optional[str] = None
     deadline: Optional[str] = None
     status: Optional[str] = None
+    reminder_offset: Optional[int] = None
 
 class TaskResponse(TaskBase):
     id: int

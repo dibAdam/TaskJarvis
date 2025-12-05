@@ -9,6 +9,7 @@ export interface Task {
   priority: string;
   deadline?: string;
   status: string;
+  reminder_offset?: number;  // Minutes before deadline to send reminder
 }
 
 export interface ChatResponse {

@@ -26,7 +26,8 @@ def create_task(task: TaskCreate, db: TaskDB = Depends(get_db)):
         description=task.description,
         priority=task.priority,
         deadline=task.deadline,
-        status=status
+        status=status,
+        reminder_offset=task.reminder_offset  # Add reminder offset
     )
     task_id = db.add_task(new_task)
     new_task.id = task_id
