@@ -4,6 +4,8 @@ from api.schemas import TaskResponse, TaskCreate, TaskUpdate
 from api.dependencies import get_db
 from tasks.task_db import TaskDB
 from tasks.task import Task
+from backend.auth.dependencies import get_current_user
+from backend.users.models import User
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
@@ -17,7 +19,14 @@ def get_tasks(
     return tasks
 
 @router.post("/", response_model=TaskResponse)
-def create_task(task: TaskCreate, db: TaskDB = Depends(get_db)):
+def create_task(
+    task: TaskCreate,
+    db: TaskDB = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    # Debug: Print user info
+    print(f"🔐 Creating task for user: {current_user.id} ({current_user.email})")
+    
     # Normalize status to lowercase
     status = (task.status or "pending").lower()
     
@@ -27,8 +36,12 @@ def create_task(task: TaskCreate, db: TaskDB = Depends(get_db)):
         priority=task.priority,
         deadline=task.deadline,
         status=status,
-        reminder_offset=task.reminder_offset  # Add reminder offset
+        reminder_offset=task.reminder_offset,  # Add reminder offset
+        user_id=current_user.id  # Set user_id from authenticated user
     )
+    
+    print(f"📝 Task created with user_id: {new_task.user_id}")
+    
     task_id = db.add_task(new_task)
     new_task.id = task_id
     return new_task

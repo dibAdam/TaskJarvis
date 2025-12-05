@@ -13,6 +13,7 @@ class Task:
     recurrence_rule: Optional[str] = None
     reminder_offset: Optional[int] = None
     last_reminded_at: Optional[str] = None
+    user_id: Optional[int] = None  # User who owns this task
 
     def to_dict(self):
         return asdict(self)
