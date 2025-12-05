@@ -29,8 +29,8 @@ class TaskDB:
     def add_task(self, task: Task) -> int:
         """Add a task using raw SQL (legacy support)"""
         query = """
-            INSERT INTO tasks (title, description, priority, deadline, status, created_at, updated_at)
-            VALUES (:title, :description, :priority, :deadline, :status, NOW(), NOW())
+            INSERT INTO tasks (title, description, priority, deadline, status, reminder_offset, created_at, updated_at)
+            VALUES (:title, :description, :priority, :deadline, :status, :reminder_offset, NOW(), NOW())
             RETURNING id
         """
         params = {
@@ -38,7 +38,8 @@ class TaskDB:
             "description": task.description,
             "priority": task.priority,
             "deadline": task.deadline,
-            "status": task.status
+            "status": task.status,
+            "reminder_offset": task.reminder_offset
         }
         result = self.execute_query(query, params)
         task_id = result.scalar()
@@ -46,7 +47,7 @@ class TaskDB:
 
     def get_tasks(self, status: Optional[str] = None, priority: Optional[str] = None) -> List[Task]:
         """Get tasks using raw SQL (legacy support)"""
-        query = "SELECT id, title, description, priority, deadline, status FROM tasks WHERE 1=1"
+        query = "SELECT id, title, description, priority, deadline, status, reminder_offset FROM tasks WHERE 1=1"
         params = {}
         
         if status:
@@ -67,7 +68,8 @@ class TaskDB:
                 description=row.description,
                 priority=row.priority,
                 deadline=str(row.deadline) if row.deadline else None,
-                status=row.status
+                status=row.status,
+                reminder_offset=row.reminder_offset
             ))
         return tasks
 
