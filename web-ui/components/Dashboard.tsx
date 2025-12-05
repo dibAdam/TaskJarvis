@@ -114,7 +114,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onUpdate, onDelete, onEdit })
             className="relative group cursor-pointer"
         >
             {/* Card Background with Glassmorphism */}
-            <div className="relative bg-slate-800/40 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-4 overflow-hidden transition-all duration-300 hover:border-slate-600/50">
+            <div className="relative bg-slate-800/40 backdrop-blur-xl border border-slate-700/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 overflow-hidden transition-all duration-300 hover:border-slate-600/50">
                 {/* Animated Gradient Overlay */}
                 <motion.div
                     className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
@@ -127,13 +127,13 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onUpdate, onDelete, onEdit })
                 <div className="absolute -inset-1 bg-linear-to-r from-blue-500/0 via-purple-500/20 to-pink-500/0 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500 -z-10" />
 
                 {/* Content */}
-                <div className="relative z-10 space-y-3">
+                <div className="relative z-10 space-y-2 sm:space-y-3">
                     {/* Header */}
                     <div className="flex items-start justify-between gap-2">
-                        <h3 className="text-slate-200 font-semibold text-sm line-clamp-2 flex-1">
+                        <h3 className="text-slate-200 font-semibold text-xs sm:text-sm line-clamp-2 flex-1 min-w-0">
                             {task.title}
                         </h3>
-                        <span className={`px-2 py-1 rounded-lg text-xs font-medium border ${priorityColors[task.priority as keyof typeof priorityColors]}`}>
+                        <span className={`px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-lg text-[10px] sm:text-xs font-medium border ${priorityColors[task.priority as keyof typeof priorityColors]} flex-shrink-0`}>
                             {task.priority}
                         </span>
                     </div>
@@ -147,9 +147,9 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onUpdate, onDelete, onEdit })
 
                     {/* Deadline */}
                     {task.deadline && (
-                        <div className="flex items-center gap-2 text-xs text-slate-500">
-                            <Calendar className="w-3 h-3" />
-                            <span>{new Date(task.deadline).toLocaleDateString()}</span>
+                        <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-slate-500">
+                            <Calendar className="w-3 h-3 flex-shrink-0" />
+                            <span className="truncate">{new Date(task.deadline).toLocaleDateString()}</span>
                         </div>
                     )}
 
@@ -158,7 +158,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onUpdate, onDelete, onEdit })
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: isHovered ? 1 : 0, y: isHovered ? 0 : 10 }}
                         transition={{ duration: 0.2 }}
-                        className="flex items-center gap-2 pt-2 border-t border-slate-700/50"
+                        className="flex items-center gap-1.5 sm:gap-2 pt-2 border-t border-slate-700/50"
                     >
                         <motion.button
                             whileHover={{ scale: 1.1 }}
@@ -230,7 +230,7 @@ const StatCard: React.FC<StatCardProps> = ({ icon, label, value, color, gradient
             whileHover={{ scale: 1.05, y: -5 }}
             className="relative group"
         >
-            <div className={`relative bg-linear-to-br ${gradient} backdrop-blur-xl border border-slate-700/50 rounded-2xl p-6 overflow-hidden`}>
+            <div className={`relative bg-linear-to-br ${gradient} backdrop-blur-xl border border-slate-700/50 rounded-2xl p-4 sm:p-6 overflow-hidden`}>
                 {/* Animated Background */}
                 <motion.div
                     className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
@@ -245,16 +245,16 @@ const StatCard: React.FC<StatCardProps> = ({ icon, label, value, color, gradient
                 />
 
                 <div className="relative z-10 flex items-center justify-between">
-                    <div>
-                        <p className="text-slate-400 text-sm mb-1">{label}</p>
+                    <div className="flex-1 min-w-0">
+                        <p className="text-slate-400 text-xs sm:text-sm mb-1 truncate">{label}</p>
                         <motion.p
-                            className={`text-3xl font-bold text-${color}-400`}
+                            className={`text-2xl sm:text-3xl font-bold text-${color}-400`}
                             key={count}
                         >
                             {count}
                         </motion.p>
                     </div>
-                    <div className={`p-3 rounded-xl bg-${color}-500/20`}>
+                    <div className={`p-2 sm:p-3 rounded-xl bg-${color}-500/20 flex-shrink-0`}>
                         {icon}
                     </div>
                 </div>
@@ -341,14 +341,14 @@ export const Dashboard: React.FC = () => {
     return (
         <div className="space-y-6">
             {/* Floating Particles Background */}
-            <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
-                {[...Array(20)].map((_, i) => (
+            <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10 hidden sm:block">
+                {[...Array(10)].map((_, i) => (
                     <motion.div
                         key={i}
                         className="absolute w-1 h-1 bg-blue-400/30 rounded-full"
                         animate={{
-                            x: [Math.random() * window.innerWidth, Math.random() * window.innerWidth],
-                            y: [Math.random() * window.innerHeight, Math.random() * window.innerHeight],
+                            x: [Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000), Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000)],
+                            y: [Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 1000), Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 1000)],
                             scale: [1, 1.5, 1],
                             opacity: [0.3, 0.6, 0.3]
                         }}
@@ -371,19 +371,19 @@ export const Dashboard: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 className="space-y-4"
             >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 sm:gap-3">
                     <motion.div
-                        className="p-3 rounded-xl bg-linear-to-br from-blue-600 to-purple-600"
+                        className="p-2 sm:p-3 rounded-xl bg-linear-to-br from-blue-600 to-purple-600 flex-shrink-0"
                         whileHover={{ scale: 1.1, rotate: 5 }}
                         whileTap={{ scale: 0.9 }}
                     >
-                        <BarChart3 className="w-6 h-6 text-white" />
+                        <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                     </motion.div>
-                    <div>
-                        <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-linear-to-r from-blue-400 to-purple-400">
+                    <div className="min-w-0">
+                        <h2 className="text-xl sm:text-2xl font-bold bg-clip-text text-transparent bg-linear-to-r from-blue-400 to-purple-400">
                             Task Board
                         </h2>
-                        <p className="text-slate-400 text-sm">Manage your tasks with style</p>
+                        <p className="text-slate-400 text-xs sm:text-sm">Manage your tasks with style</p>
                     </div>
                 </div>
 
@@ -425,7 +425,7 @@ export const Dashboard: React.FC = () => {
             </motion.div>
 
             {/* Kanban Board */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
                 {columns.map((column, columnIndex) => {
                     const columnTasks = getTasksByStatus(column.status);
 
@@ -438,34 +438,34 @@ export const Dashboard: React.FC = () => {
                             className="relative"
                         >
                             {/* Column Container */}
-                            <div className="relative bg-slate-900/30 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-4 min-h-[500px]">
+                            <div className="relative bg-slate-900/30 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-3 sm:p-4 min-h-[300px] sm:min-h-[400px] lg:min-h-[500px]">
                                 {/* Gradient Overlay */}
                                 <div className={`absolute inset-0 bg-linear-to-br ${column.gradient} rounded-2xl opacity-50`} />
 
                                 {/* Column Header */}
-                                <div className="relative z-10 mb-4">
+                                <div className="relative z-10 mb-3 sm:mb-4">
                                     <div className="flex items-center justify-between mb-2">
-                                        <div className="flex items-center gap-2">
-                                            <div className={`p-2 rounded-lg bg-${column.color}-500/20 text-${column.color}-400`}>
+                                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                                            <div className={`p-1.5 sm:p-2 rounded-lg bg-${column.color}-500/20 text-${column.color}-400 flex-shrink-0`}>
                                                 {column.icon}
                                             </div>
-                                            <h3 className="text-lg font-semibold text-slate-200">
+                                            <h3 className="text-base sm:text-lg font-semibold text-slate-200 truncate">
                                                 {column.title}
                                             </h3>
                                         </div>
                                         <motion.div
                                             initial={{ scale: 0 }}
                                             animate={{ scale: 1 }}
-                                            className={`px-3 py-1 rounded-full bg-${column.color}-500/20 text-${column.color}-400 text-sm font-medium`}
+                                            className={`px-2 sm:px-3 py-1 rounded-full bg-${column.color}-500/20 text-${column.color}-400 text-xs sm:text-sm font-medium flex-shrink-0`}
                                         >
                                             {columnTasks.length}
                                         </motion.div>
                                     </div>
-                                    <div className={`h-1 rounded-full bg-linear-to-r ${column.gradient.replace('/20', '/50')}`} />
+                                    <div className={`h-0.5 sm:h-1 rounded-full bg-linear-to-r ${column.gradient.replace('/20', '/50')}`} />
                                 </div>
 
                                 {/* Tasks */}
-                                <div className="relative z-10 space-y-3">
+                                <div className="relative z-10 space-y-2 sm:space-y-3 max-h-[250px] sm:max-h-[350px] lg:max-h-[400px] overflow-auto scrollbar-hide">
                                     <AnimatePresence>
                                         {loading ? (
                                             <div className="text-center text-slate-500 py-8">

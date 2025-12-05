@@ -65,59 +65,59 @@ export default function Home() {
     <ProtectedRoute>
       <main className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-blue-500/30">
         {/* Fixed Header */}
-        <header className="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-800/50 px-4 md:px-8 py-4">
-          <div className="flex items-center justify-between">
+        <header className="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-800/50 px-3 sm:px-4 md:px-8 py-3 sm:py-4">
+          <div className="flex items-center justify-between gap-2 sm:gap-4">
             {/* Left: Logo and Title */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
               <motion.div
-                className="w-10 h-10 bg-linear-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20"
+                className="w-8 h-8 sm:w-10 sm:h-10 bg-linear-to-br from-blue-600 to-purple-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 flex-shrink-0"
                 whileHover={{ scale: 1.05, rotate: 5 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <span className="text-xl">⚡</span>
+                <span className="text-lg sm:text-xl">⚡</span>
               </motion.div>
-              <div>
-                <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-linear-to-r from-blue-400 to-purple-400">
+              <div className="min-w-0 hidden sm:block">
+                <h1 className="text-xl sm:text-2xl font-bold bg-clip-text text-transparent bg-linear-to-r from-blue-400 to-purple-400">
                   TaskJarvis
                 </h1>
-                <p className="text-sm text-slate-400">AI-Powered Task Manager</p>
+                <p className="text-xs sm:text-sm text-slate-400 hidden md:block">AI-Powered Task Manager</p>
               </div>
             </div>
 
             {/* Center: Tab Navigation */}
-            <div className="flex bg-slate-900/50 p-1 rounded-xl border border-slate-800 relative backdrop-blur-md">
+            <div className="flex bg-slate-900/50 p-0.5 sm:p-1 rounded-lg sm:rounded-xl border border-slate-800 relative backdrop-blur-md">
               <motion.button
                 onClick={() => setActiveTab('tasks')}
-                className={`relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all z-10 ${activeTab === 'tasks'
-                  ? 'text-white'
-                  : 'text-slate-400 hover:text-slate-200'
+                className={`relative flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 rounded-md sm:rounded-lg text-xs sm:text-sm font-medium transition-all z-10 ${activeTab === 'tasks'
+                    ? 'text-white'
+                    : 'text-slate-400 hover:text-slate-200'
                   }`}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <ListTodo className="w-4 h-4" />
-                Tasks
+                <ListTodo className="w-4 h-4 flex-shrink-0" />
+                <span className="hidden min-[480px]:inline">Tasks</span>
               </motion.button>
               <motion.button
                 onClick={() => setActiveTab('dashboard')}
-                className={`relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all z-10 ${activeTab === 'dashboard'
-                  ? 'text-white'
-                  : 'text-slate-400 hover:text-slate-200'
+                className={`relative flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 rounded-md sm:rounded-lg text-xs sm:text-sm font-medium transition-all z-10 ${activeTab === 'dashboard'
+                    ? 'text-white'
+                    : 'text-slate-400 hover:text-slate-200'
                   }`}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <LayoutDashboard className="w-4 h-4" />
-                Board
+                <LayoutDashboard className="w-4 h-4 flex-shrink-0" />
+                <span className="hidden min-[480px]:inline">Board</span>
               </motion.button>
 
               {/* Animated Background */}
               <motion.div
-                className="absolute top-1 bottom-1 bg-slate-800 rounded-lg shadow-sm"
+                className="absolute top-0.5 sm:top-1 bottom-0.5 sm:bottom-1 bg-slate-800 rounded-md sm:rounded-lg shadow-sm"
                 initial={false}
                 animate={{
-                  left: activeTab === 'tasks' ? '4px' : 'calc(50% + 2px)',
-                  width: activeTab === 'tasks' ? 'calc(50% - 6px)' : 'calc(50% - 6px)'
+                  left: activeTab === 'tasks' ? '2px' : 'calc(50% + 1px)',
+                  width: 'calc(50% - 3px)'
                 }}
                 transition={{
                   type: 'spring',

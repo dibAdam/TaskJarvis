@@ -82,7 +82,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
 
     // Add empty cells for days before month starts
     for (let i = 0; i < startingDayOfWeek; i++) {
-        calendarDays.push(<div key={`empty-${i}`} className="min-h-[120px] bg-slate-900/20" />);
+        calendarDays.push(<div key={`empty-${i}`} className="min-h-[80px] sm:min-h-[100px] lg:min-h-[120px] bg-slate-900/20" />);
     }
 
     // Add days of the month
@@ -94,14 +94,14 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
         calendarDays.push(
             <motion.div
                 key={day}
-                className={`min-h-[120px] p-2 border border-slate-700/50 bg-slate-800/30 hover:bg-slate-800/50 transition-colors ${today ? 'ring-2 ring-blue-500 bg-blue-500/10' : ''
+                className={`min-h-[80px] sm:min-h-[100px] lg:min-h-[120px] p-1.5 sm:p-2 border border-slate-700/50 bg-slate-800/30 hover:bg-slate-800/50 transition-colors ${today ? 'ring-1 sm:ring-2 ring-blue-500 bg-blue-500/10' : ''
                     } ${hasMoreTasks ? 'cursor-pointer' : ''}`}
                 whileHover={{ scale: hasMoreTasks ? 1.02 : 1 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                 onClick={() => handleDayClick(day, dayTasks)}
             >
                 {/* Day number */}
-                <div className={`text-sm font-semibold mb-2 ${today ? 'text-blue-400' : 'text-slate-300'}`}>
+                <div className={`text-xs sm:text-sm font-semibold mb-1 sm:mb-2 ${today ? 'text-blue-400' : 'text-slate-300'}`}>
                     {day}
                 </div>
 
@@ -114,32 +114,35 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                                 e.stopPropagation();
                                 onTaskClick(task);
                             }}
-                            className={`text-xs p-1.5 rounded cursor-pointer flex items-center gap-1.5 ${task.status === 'completed'
-                                ? 'bg-emerald-500/20 text-emerald-300 line-through'
-                                : task.priority === 'High' || task.priority === 'high'
-                                    ? 'bg-red-500/20 text-red-300 border-l-2 border-red-500'
-                                    : task.priority === 'Medium' || task.priority === 'medium'
-                                        ? 'bg-amber-500/20 text-amber-300 border-l-2 border-amber-500'
-                                        : 'bg-blue-500/20 text-blue-300 border-l-2 border-blue-500'
+                            className={`text-[11px] sm:text-xs p-1.5 rounded cursor-pointer flex items-center gap-1 sm:gap-1.5 font-medium ${task.status === 'completed'
+                                    ? 'bg-emerald-500/30 text-emerald-200 line-through'
+                                    : task.priority === 'High' || task.priority === 'high'
+                                        ? 'bg-red-500/30 text-red-200 border-l-2 border-red-400'
+                                        : task.priority === 'Medium' || task.priority === 'medium'
+                                            ? 'bg-amber-500/30 text-amber-200 border-l-2 border-amber-400'
+                                            : 'bg-blue-500/30 text-blue-200 border-l-2 border-blue-400'
                                 }`}
                             whileHover={{ scale: 1.05, x: 2 }}
                             whileTap={{ scale: 0.95 }}
                         >
-                            <PriorityIndicator
-                                priority={task.priority as 'High' | 'Medium' | 'Low'}
-                                size="sm"
-                            />
-                            <span className="truncate flex-1">{task.title}</span>
+                            <div className="hidden min-[480px]:block">
+                                <PriorityIndicator
+                                    priority={task.priority as 'High' | 'Medium' | 'Low'}
+                                    size="sm"
+                                />
+                            </div>
+                            <span className="truncate flex-1 leading-tight">{task.title}</span>
                         </motion.div>
                     ))}
 
                     {/* Show "+X more" if there are more tasks */}
                     {hasMoreTasks && (
                         <motion.div
-                            className="text-xs text-blue-400 pl-1.5 font-medium hover:text-blue-300 transition-colors"
+                            className="text-[11px] sm:text-xs text-blue-300 pl-1.5 font-semibold hover:text-blue-200 transition-colors"
                             whileHover={{ scale: 1.05 }}
                         >
-                            +{dayTasks.length - 3} more (click to view)
+                            <span className="hidden min-[480px]:inline">+{dayTasks.length - 3} more (tap to view)</span>
+                            <span className="min-[480px]:hidden">+{dayTasks.length - 3} more</span>
                         </motion.div>
                     )}
                 </div>
@@ -157,14 +160,14 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
     return (
         <div className="space-y-4">
             {/* Calendar Header */}
-            <div className="flex items-center justify-between bg-slate-800/40 backdrop-blur-md border border-slate-700/60 rounded-xl p-4">
-                <div className="flex items-center gap-4">
-                    <h2 className="text-2xl font-bold text-slate-100">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 bg-slate-800/40 backdrop-blur-md border border-slate-700/60 rounded-xl p-3 sm:p-4">
+                <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
+                    <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-slate-100">
                         {monthNames[month]} {year}
                     </h2>
                     <motion.button
                         onClick={goToToday}
-                        className="px-4 py-2 bg-blue-600/20 text-blue-400 rounded-lg hover:bg-blue-600/30 transition-colors text-sm font-medium border border-blue-500/30"
+                        className="px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-600/20 text-blue-400 rounded-lg hover:bg-blue-600/30 transition-colors text-xs sm:text-sm font-medium border border-blue-500/30"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                     >
@@ -175,19 +178,19 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                 <div className="flex items-center gap-2">
                     <motion.button
                         onClick={previousMonth}
-                        className="p-2 rounded-lg bg-slate-700/50 hover:bg-slate-700 text-slate-300 transition-colors"
+                        className="p-1.5 sm:p-2 rounded-lg bg-slate-700/50 hover:bg-slate-700 text-slate-300 transition-colors"
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
                     >
-                        <ChevronLeft className="w-5 h-5" />
+                        <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
                     </motion.button>
                     <motion.button
                         onClick={nextMonth}
-                        className="p-2 rounded-lg bg-slate-700/50 hover:bg-slate-700 text-slate-300 transition-colors"
+                        className="p-1.5 sm:p-2 rounded-lg bg-slate-700/50 hover:bg-slate-700 text-slate-300 transition-colors"
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
                     >
-                        <ChevronRight className="w-5 h-5" />
+                        <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
                     </motion.button>
                 </div>
             </div>
@@ -196,12 +199,13 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
             <div className="bg-slate-800/30 backdrop-blur-md border border-slate-700/60 rounded-xl overflow-hidden">
                 {/* Day names header */}
                 <div className="grid grid-cols-7 bg-slate-800/60">
-                    {dayNames.map(day => (
+                    {dayNames.map((day, index) => (
                         <div
                             key={day}
-                            className="p-3 text-center text-sm font-semibold text-slate-400 border-b border-slate-700/50"
+                            className="p-2 sm:p-3 text-center text-xs sm:text-sm font-semibold text-slate-400 border-b border-slate-700/50"
                         >
-                            {day}
+                            <span className="hidden sm:inline">{day}</span>
+                            <span className="sm:hidden">{day.charAt(0)}</span>
                         </div>
                     ))}
                 </div>
@@ -213,7 +217,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
             </div>
 
             {/* Legend */}
-            <div className="flex items-center gap-6 text-xs text-slate-400 px-2">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-6 text-xs text-slate-400 px-2">
                 <div className="flex items-center gap-2">
                     <div className="w-3 h-3 bg-red-500/20 border-l-2 border-red-500 rounded-sm" />
                     <span>High Priority</span>
@@ -247,15 +251,15 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                             animate={{ scale: 1, opacity: 1, y: 0 }}
                             exit={{ scale: 0.9, opacity: 0, y: 20 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[80vh] overflow-hidden flex flex-col"
+                            className="bg-slate-900 border border-slate-700 rounded-xl sm:rounded-2xl shadow-2xl max-w-4xl w-full max-h-[85vh] sm:max-h-[80vh] overflow-hidden flex flex-col m-2 sm:m-0"
                         >
                             {/* Modal Header */}
-                            <div className="p-6 border-b border-slate-700 flex items-center justify-between bg-slate-800/50">
-                                <div>
-                                    <h3 className="text-2xl font-bold text-slate-200">
+                            <div className="p-4 sm:p-6 border-b border-slate-700 flex items-center justify-between bg-slate-800/50">
+                                <div className="min-w-0 flex-1 pr-4">
+                                    <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-slate-200 truncate">
                                         {monthNames[month]} {selectedDate.day}, {year}
                                     </h3>
-                                    <p className="text-slate-400 mt-1">
+                                    <p className="text-xs sm:text-sm text-slate-400 mt-1">
                                         {selectedDate.tasks.length} {selectedDate.tasks.length === 1 ? 'task' : 'tasks'}
                                     </p>
                                 </div>
@@ -263,14 +267,14 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                                     onClick={() => setSelectedDate(null)}
                                     whileHover={{ scale: 1.1, rotate: 90 }}
                                     whileTap={{ scale: 0.9 }}
-                                    className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-slate-200 transition-colors"
+                                    className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-slate-200 transition-colors shrink-0"
                                 >
-                                    <X className="w-6 h-6" />
+                                    <X className="w-5 h-5 sm:w-6 sm:h-6" />
                                 </motion.button>
                             </div>
 
                             {/* Modal Content - Scrollable Task List */}
-                            <div className="flex-1 overflow-y-auto p-6 bg-slate-900/50">
+                            <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-900/50">
                                 <div className="space-y-4">
                                     {selectedDate.tasks.map((task) => (
                                         <TaskCard
