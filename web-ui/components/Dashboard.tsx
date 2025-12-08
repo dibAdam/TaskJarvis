@@ -53,16 +53,6 @@ const columns: KanbanColumn[] = [
     }
 ];
 
-
-interface StatCardProps {
-    icon: React.ReactNode;
-    label: string;
-    value: number;
-    color: string;
-    gradient: string;
-    delay: number;
-}
-
 export const Dashboard: React.FC = () => {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [loading, setLoading] = useState(true);
@@ -125,8 +115,8 @@ export const Dashboard: React.FC = () => {
     const stats = {
         total: tasks.length,
         completed: tasks.filter(t => t.status === 'completed').length,
-        inProgress: tasks.filter(t => t.status === 'In Progress').length,
-        highPriority: tasks.filter(t => t.priority === 'High').length
+        inProgress: tasks.filter(t => t.status === 'in progress').length,
+        highPriority: tasks.filter(t => t.priority === 'high').length
     };
 
     return (
