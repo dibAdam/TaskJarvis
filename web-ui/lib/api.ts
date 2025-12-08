@@ -10,6 +10,7 @@ export interface Task {
   deadline?: string;
   status: string;
   reminder_offset?: number;  // Minutes before deadline to send reminder
+  workspace_id?: number;  // Optional workspace assignment
 }
 
 export interface ChatResponse {
@@ -20,6 +21,30 @@ export interface ChatResponse {
 export interface AnalyticsResponse {
   stats: string;
   chart_path?: string;
+}
+
+export interface Workspace {
+  id: number;
+  name: string;
+  description: string;
+  owner_id: number;
+  created_at: string;
+  member_count?: number;
+}
+
+export interface WorkspaceMember {
+  id: number;
+  user_id: number;
+  username: string;
+  email: string;
+  role: string;  // 'owner', 'admin', or 'member'
+  joined_at: string;
+}
+
+export interface InvitationToken {
+  token: string;
+  workspace_id: number;
+  expires_at: string;
 }
 
 /**
@@ -131,5 +156,57 @@ export const api = {
     const res = await fetchWithAuth(`${API_BASE_URL}/analytics/`);
     if (!res.ok) throw new Error('Failed to fetch analytics');
     return res.json();
+  },
+
+  // Workspaces
+  createWorkspace: async (name: string, description?: string): Promise<Workspace> => {
+    const res = await fetchWithAuth(`${API_BASE_URL}/workspaces/`, {
+      method: 'POST',
+      body: JSON.stringify({ name, description: description || '' }),
+    });
+    if (!res.ok) throw new Error('Failed to create workspace');
+    return res.json();
+  },
+
+  listWorkspaces: async (): Promise<Workspace[]> => {
+    const res = await fetchWithAuth(`${API_BASE_URL}/workspaces/`);
+    if (!res.ok) throw new Error('Failed to fetch workspaces');
+    return res.json();
+  },
+
+  getWorkspace: async (workspaceId: number): Promise<Workspace> => {
+    const res = await fetchWithAuth(`${API_BASE_URL}/workspaces/${workspaceId}`);
+    if (!res.ok) throw new Error('Failed to fetch workspace');
+    return res.json();
+  },
+
+  inviteToWorkspace: async (workspaceId: number, email: string): Promise<InvitationToken> => {
+    const res = await fetchWithAuth(`${API_BASE_URL}/workspaces/${workspaceId}/invite`, {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+    if (!res.ok) throw new Error('Failed to create invitation');
+    return res.json();
+  },
+
+  joinWorkspace: async (token: string): Promise<{ message: string; workspace_id: number }> => {
+    const res = await fetchWithAuth(`${API_BASE_URL}/workspaces/join/${token}`, {
+      method: 'POST',
+    });
+    if (!res.ok) throw new Error('Failed to join workspace');
+    return res.json();
+  },
+
+  listWorkspaceMembers: async (workspaceId: number): Promise<WorkspaceMember[]> => {
+    const res = await fetchWithAuth(`${API_BASE_URL}/workspaces/${workspaceId}/members`);
+    if (!res.ok) throw new Error('Failed to fetch workspace members');
+    return res.json();
+  },
+
+  removeWorkspaceMember: async (workspaceId: number, userId: number): Promise<void> => {
+    const res = await fetchWithAuth(`${API_BASE_URL}/workspaces/${workspaceId}/members/${userId}`, {
+      method: 'DELETE',
+    });
+    if (!res.ok) throw new Error('Failed to remove member');
   }
 };

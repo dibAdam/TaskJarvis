@@ -12,6 +12,11 @@ load_dotenv()
 # Import database
 from backend.database import Base, engine
 
+# Import models to ensure they're registered with SQLAlchemy
+from backend.users.models import User
+from backend.tasks.models import Task
+from backend.workspaces.models import Workspace, WorkspaceMember
+
 # Import routers
 from backend.users.routes import router as auth_router
 from backend.workspaces.routes import router as workspaces_router

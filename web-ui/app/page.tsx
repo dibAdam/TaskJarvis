@@ -6,23 +6,32 @@ import { TaskList } from '@/components/TaskList';
 import { ChatInterface } from '@/components/ChatInterface';
 import { Dashboard } from '@/components/Dashboard';
 import { Settings } from '@/components/Settings';
-import { LayoutDashboard, ListTodo, MessageSquare, X } from 'lucide-react';
+import { LayoutDashboard, ListTodo, MessageSquare, X, Users as WorkspacesIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { pageVariants } from '@/lib/animations';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { UserProfile } from '@/components/UserProfile';
+import { WorkspaceProvider, useWorkspace } from '@/contexts/WorkspaceContext';
+import WorkspaceSelector from '@/components/WorkspaceSelector';
+import { useRouter } from 'next/navigation';
 
-export default function Home() {
+function HomeContent() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'tasks' | 'dashboard'>('tasks');
   const [isMobileChatOpen, setIsMobileChatOpen] = useState(false);
+  const { currentWorkspace } = useWorkspace();
+  const router = useRouter();
 
   const fetchTasks = async () => {
     setLoading(true);
     try {
       const data = await api.getTasks();
-      setTasks(data);
+      // Filter tasks by workspace if one is selected
+      const filteredTasks = currentWorkspace
+        ? data.filter(task => task.workspace_id === currentWorkspace.id)
+        : data;
+      setTasks(filteredTasks);
     } catch (error) {
       console.error('Failed to fetch tasks', error);
     } finally {
@@ -32,7 +41,7 @@ export default function Home() {
 
   useEffect(() => {
     fetchTasks();
-  }, []);
+  }, [currentWorkspace]);
 
   const handleComplete = async (id: number) => {
     try {
@@ -82,6 +91,10 @@ export default function Home() {
                 </h1>
                 <p className="text-xs sm:text-sm text-slate-400 hidden md:block">AI-Powered Task Manager</p>
               </div>
+              {/* Workspace Selector */}
+              <div className="hidden lg:block ml-4">
+                <WorkspaceSelector />
+              </div>
             </div>
 
             {/* Center: Tab Navigation */}
@@ -127,8 +140,19 @@ export default function Home() {
               />
             </div>
 
-            {/* Right: User Profile */}
-            <UserProfile />
+            {/* Right: Workspaces Button & User Profile */}
+            <div className="flex items-center gap-2 sm:gap-3">
+              <motion.button
+                onClick={() => router.push('/workspaces')}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="flex items-center gap-2 px-3 py-2 bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg hover:bg-white/10 transition-all duration-200"
+              >
+                <WorkspacesIcon className="w-4 h-4 text-blue-400" />
+                <span className="text-sm font-medium text-white hidden sm:inline">Workspaces</span>
+              </motion.button>
+              <UserProfile />
+            </div>
           </div>
         </header>
 
@@ -225,6 +249,14 @@ export default function Home() {
           </motion.button>
         </div>
       </main>
-    </ProtectedRoute >
+    </ProtectedRoute>
+  );
+}
+
+export default function Home() {
+  return (
+    <WorkspaceProvider>
+      <HomeContent />
+    </WorkspaceProvider>
   );
 }

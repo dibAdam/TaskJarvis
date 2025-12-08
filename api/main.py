@@ -7,8 +7,14 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
+# Import models to ensure they're registered with SQLAlchemy
+from backend.users.models import User
+from backend.tasks.models import Task
+from backend.workspaces.models import Workspace, WorkspaceMember
+
 from api.routes import tasks, assistant, analytics
 from backend.users import routes as auth_routes
+from backend.workspaces import routes as workspace_routes
 from scheduler.engine import get_scheduler
 from contextlib import asynccontextmanager
 
@@ -60,6 +66,7 @@ app.include_router(tasks.router)
 app.include_router(assistant.router)
 app.include_router(analytics.router)
 app.include_router(auth_routes.router)
+app.include_router(workspace_routes.router)
 
 @app.get("/")
 def read_root():
