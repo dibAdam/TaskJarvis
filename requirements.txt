@@ -1,11 +1,8 @@
-# Existing dependencies
-openai
-anthropic
-google-generativeai
-huggingface_hub
-requests
-matplotlib
+# AI/LLM Dependencies - OpenRouter Unified
+openai>=1.0.0  # Used for OpenRouter API compatibility
 python-dotenv
+
+# Web Framework
 fastapi
 uvicorn
 pydantic
@@ -26,3 +23,12 @@ python-dateutil>=2.8.2
 twilio>=8.0.0
 plyer>=2.1.0
 apscheduler>=3.10.0
+
+# Utilities
+requests
+matplotlib
+
+# Legacy dependencies removed:
+# - anthropic (replaced by OpenRouter)
+# - google-generativeai (replaced by OpenRouter)
+# - huggingface_hub (replaced by OpenRouter)

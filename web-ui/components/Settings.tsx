@@ -3,7 +3,7 @@ import { api } from '@/lib/api';
 import { Settings as SettingsIcon, Save } from 'lucide-react';
 
 export const Settings: React.FC = () => {
-    const [provider, setProvider] = useState('GEMINI');
+    const [provider, setProvider] = useState('OPENROUTER');
     const [model, setModel] = useState('');
     const [saving, setSaving] = useState(false);
 
@@ -36,26 +36,31 @@ export const Settings: React.FC = () => {
                         onChange={(e) => setProvider(e.target.value)}
                         className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-blue-500/50"
                     >
-                        <option value="GEMINI">Google Gemini</option>
-                        <option value="OPENAI">OpenAI (GPT-4)</option>
-                        <option value="ANTHROPIC">Anthropic (Claude)</option>
-                        <option value="OLLAMA">Ollama (Local)</option>
-                        <option value="HUGGINGFACE">HuggingFace</option>
+                        <option value="OPENROUTER">OpenRouter (Unified AI)</option>
                         <option value="MOCK">Mock (Testing)</option>
                     </select>
                 </div>
 
                 <div>
                     <label className="block text-sm font-medium text-slate-400 mb-1">
-                        Model Name (Optional)
+                        OpenRouter Model
                     </label>
-                    <input
-                        type="text"
+                    <select
                         value={model}
                         onChange={(e) => setModel(e.target.value)}
-                        placeholder="e.g. gpt-4-turbo"
-                        className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500/50"
-                    />
+                        className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-blue-500/50"
+                        disabled={provider !== 'OPENROUTER'}
+                    >
+                        <option value="">Default (Claude 3.5 Sonnet)</option>
+                        <option value="anthropic/claude-3.5-sonnet">Claude 3.5 Sonnet (Best for SQL/Structured)</option>
+                        <option value="openai/gpt-4o">GPT-4o (Advanced Reasoning)</option>
+                        <option value="openai/gpt-4o-mini">GPT-4o Mini (Fast & Cost-Effective)</option>
+                        <option value="meta-llama/llama-3.1-70b-instruct">Llama 3.1 70B (Open Source)</option>
+                        <option value="meta-llama/llama-3.1-8b-instruct">Llama 3.1 8B (Very Cheap)</option>
+                    </select>
+                    <p className="text-xs text-slate-500 mt-1">
+                        {provider === 'OPENROUTER' ? 'Select an AI model from OpenRouter' : 'Only available for OpenRouter provider'}
+                    </p>
                 </div>
 
                 <button

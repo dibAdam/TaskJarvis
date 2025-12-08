@@ -18,7 +18,7 @@
 
 **TaskJarvis** is a sophisticated, AI-driven productivity suite designed to bridge the gap between natural language intent and structured task management. Unlike traditional to-do lists, TaskJarvis understands context, priority, and nuance, allowing users to manage their workload through natural conversation.
 
-Built with a **modern, glassmorphic interface** and powered by a **multi-provider LLM architecture**, it offers both a premium desktop experience and a modern web interface. Whether you prefer cloud-based intelligence (OpenAI, Gemini, Anthropic) or local privacy (Ollama), TaskJarvis adapts to your needs.
+Built with a **modern, glassmorphic interface** and powered by **OpenRouter's unified AI platform**, it offers both a premium desktop experience and a modern web interface. Access 100+ AI models through a single API - from Claude and GPT-4 to open-source alternatives.
 
 ---
 
@@ -56,11 +56,11 @@ Core components like `TaskDB` are injected into dependent services (`TaskAssista
 - **NLP**: **SpaCy** (Entity recognition fallback) & **LLMs** (Semantic understanding)
 
 ### AI & Intelligence
-- **Google Gemini API**: High-speed, multimodal reasoning.
-- **OpenAI API**: Advanced reasoning and instruction following.
-- **Anthropic Claude**: Natural, nuanced conversation.
-- **Ollama**: Local, privacy-focused model execution (Llama 2, Mistral).
-- **HuggingFace**: Access to open-source models.
+- **OpenRouter**: Unified access to 100+ AI models through a single API
+  - Anthropic Claude (best for structured output, SQL generation)
+  - OpenAI GPT-4/GPT-4o (advanced reasoning)
+  - Meta Llama (open-source, privacy-focused)
+  - And many more models with automatic cost optimization
 
 ### Multi-User Cloud Features (v2.0)
 - **Authentication**: JWT-based authentication with refresh tokens

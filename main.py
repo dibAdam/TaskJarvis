@@ -10,7 +10,7 @@ load_dotenv()
 
 def get_provider_choice():
     """Interactive prompt to select AI provider."""
-    providers = ["OPENAI", "ANTHROPIC", "GEMINI", "OLLAMA", "HUGGINGFACE", "MOCK"]
+    providers = ["OPENROUTER", "MOCK"]
     
     print("\nSelect AI Provider:")
     for i, p in enumerate(providers, 1):
@@ -18,9 +18,9 @@ def get_provider_choice():
     
     while True:
         try:
-            choice = input("\nEnter number (default 3 - GEMINI): ").strip()
+            choice = input("\nEnter number (default 1 - OPENROUTER): ").strip()
             if not choice:
-                return "GEMINI"
+                return "OPENROUTER"
             
             idx = int(choice) - 1
             if 0 <= idx < len(providers):
@@ -31,7 +31,7 @@ def get_provider_choice():
 
 def main():
     parser = argparse.ArgumentParser(description="TaskJarvis AI Assistant")
-    parser.add_argument("--provider", help="AI Provider (OPENAI, ANTHROPIC, GEMINI, OLLAMA, HUGGINGFACE, MOCK)")
+    parser.add_argument("--provider", help="AI Provider (OPENROUTER, MOCK)")
     parser.add_argument("--model", help="Specific model name to use")
     args = parser.parse_args()
 

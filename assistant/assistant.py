@@ -19,32 +19,20 @@ class TaskAssistant:
         # Get LLM provider (argument overrides settings)
         provider = provider or settings.LLM_PROVIDER
         
-        # Get API key based on provider
-        api_key_map = {
-            "OPENAI": settings.OPENAI_API_KEY,
-            "ANTHROPIC": settings.ANTHROPIC_API_KEY,
-            "GEMINI": settings.GEMINI_API_KEY,
-            "HUGGINGFACE": settings.HUGGINGFACE_API_KEY
-        }
-        api_key = api_key_map.get(provider.upper())
+        # Get API key for OpenRouter
+        api_key = None
+        if provider.upper() == "OPENROUTER":
+            api_key = settings.OPENROUTER_API_KEY
         
         # Get model name (argument overrides settings)
-        if not model_name:
-            model_map = {
-                "OPENAI": settings.OPENAI_MODEL,
-                "ANTHROPIC": settings.ANTHROPIC_MODEL,
-                "GEMINI": settings.GEMINI_MODEL,
-                "OLLAMA": settings.OLLAMA_MODEL,
-                "HUGGINGFACE": settings.HUGGINGFACE_MODEL
-            }
-            model_name = model_map.get(provider.upper())
+        if not model_name and provider.upper() == "OPENROUTER":
+            model_name = settings.OPENROUTER_MODEL
         
         # Create LLM client with fallback to Mock
         self.llm_client = LLMFactory.create_with_fallback(
             provider=provider,
             api_key=api_key,
-            model_name=model_name,
-            host=settings.OLLAMA_HOST if provider.upper() == "OLLAMA" else None
+            model_name=model_name
         )
         
         # User context (set by the API endpoint)

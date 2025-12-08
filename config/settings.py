@@ -14,24 +14,24 @@ PRIORITY_HIGH = "High"
 
 DEFAULT_PRIORITY = PRIORITY_MEDIUM
 
-# LLM Configuration
-LLM_PROVIDER = os.getenv("LLM_PROVIDER", "GEMINI")  # OPENAI, ANTHROPIC, GEMINI, OLLAMA, HUGGINGFACE, MOCK
+# LLM Configuration - OpenRouter Unified
+LLM_PROVIDER = os.getenv("LLM_PROVIDER", "OPENROUTER")  # OPENROUTER, MOCK
 
-# API Keys (read from environment variables)
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-HUGGINGFACE_API_KEY = os.getenv("HUGGINGFACE_API_KEY")
+# OpenRouter Configuration
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "anthropic/claude-3.5-sonnet")
 
-# Ollama Configuration
-OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
+# OpenRouter Model Options (for reference):
+# - anthropic/claude-3.5-sonnet (best for structured output, SQL generation)
+# - openai/gpt-4o (advanced reasoning)
+# - openai/gpt-4o-mini (fast, cost-effective)
+# - meta-llama/llama-3.1-70b-instruct (open source, privacy-focused)
+# - meta-llama/llama-3.1-8b-instruct (very cost-effective)
 
-# Model Names (optional overrides)
-OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o")
-ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-3-5-sonnet-20241022")
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-pro")
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "gpt-oss")
-HUGGINGFACE_MODEL = os.getenv("HUGGINGFACE_MODEL", "meta-llama/Llama-2-7b-chat-hf")
+# Legacy settings removed:
+# - OPENAI_API_KEY, ANTHROPIC_API_KEY, GEMINI_API_KEY (use OpenRouter instead)
+# - OLLAMA_HOST, OLLAMA_MODEL (local models removed)
+# - HUGGINGFACE_API_KEY, HUGGINGFACE_MODEL (replaced by OpenRouter)
 
 # PostgreSQL Database (required)
 DATABASE_URL = os.getenv("DATABASE_URL")
