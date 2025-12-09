@@ -6,6 +6,7 @@ import { api, Task } from '@/lib/api';
 import { TaskDetailModal } from '@/components/TaskDetailModal';
 import { TaskCard } from '@/components/dashboardComponents/TaskCard';
 import { StatCard } from '@/components/dashboardComponents/StatCard';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
 
 import {
     Target,
@@ -54,6 +55,7 @@ const columns: KanbanColumn[] = [
 ];
 
 export const Dashboard: React.FC = () => {
+    const { currentWorkspace } = useWorkspace();
     const [tasks, setTasks] = useState<Task[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -63,7 +65,11 @@ export const Dashboard: React.FC = () => {
         setLoading(true);
         try {
             const data = await api.getTasks();
-            setTasks(data);
+            // Filter tasks by workspace if one is selected
+            const filteredTasks = currentWorkspace
+                ? data.filter(task => task.workspace_id === currentWorkspace.id)
+                : data;
+            setTasks(filteredTasks);
         } catch (error) {
             console.error('Failed to fetch tasks', error);
         } finally {
@@ -73,7 +79,7 @@ export const Dashboard: React.FC = () => {
 
     useEffect(() => {
         fetchTasks();
-    }, []);
+    }, [currentWorkspace]);
 
     const handleUpdateTask = async (id: number, updates: Partial<Task>) => {
         try {
