@@ -13,6 +13,7 @@ export default function Navbar() {
 
     const navItems = [
         { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+        { name: 'Tasks', href: '/tasks', icon: ListTodo },
         { name: 'Workspaces', href: '/workspaces', icon: Users },
         // { name: 'Settings', href: '/settings', icon: Settings }, // Future implementation
     ];

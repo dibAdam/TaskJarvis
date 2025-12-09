@@ -1,0 +1,143 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { api, Task } from '@/lib/api';
+import { TaskList } from '@/components/TaskList';
+import { ChatInterface } from '@/components/ChatInterface';
+import { MessageSquare, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
+
+export default function TasksPage() {
+    const [tasks, setTasks] = useState<Task[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [isMobileChatOpen, setIsMobileChatOpen] = useState(false);
+    const { currentWorkspace } = useWorkspace();
+
+    const fetchTasks = async () => {
+        setLoading(true);
+        try {
+            const data = await api.getTasks();
+            // Filter tasks by workspace if one is selected
+            const filteredTasks = currentWorkspace
+                ? data.filter(task => task.workspace_id === currentWorkspace.id)
+                : data;
+            setTasks(filteredTasks);
+        } catch (error) {
+            console.error('Failed to fetch tasks', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchTasks();
+    }, [currentWorkspace]);
+
+    const handleComplete = async (id: number) => {
+        try {
+            await api.updateTask(id, { status: 'completed' });
+            fetchTasks();
+        } catch (error) {
+            console.error('Failed to complete task', error);
+        }
+    };
+
+    const handleDelete = async (id: number) => {
+        try {
+            await api.deleteTask(id);
+            fetchTasks();
+        } catch (error) {
+            console.error('Failed to delete task', error);
+        }
+    };
+
+    const handleUpdate = async (id: number, updates: Partial<Task>) => {
+        try {
+            await api.updateTask(id, updates);
+            fetchTasks();
+        } catch (error) {
+            console.error('Failed to update task', error);
+        }
+    };
+
+    return (
+        <ProtectedRoute>
+            <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-blue-500/30">
+                <div className="max-w-[calc(100vw-350px)] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                    <div className="lg:mr-[420px]">
+                        <TaskList
+                            tasks={tasks}
+                            onComplete={handleComplete}
+                            onDelete={handleDelete}
+                            onUpdate={handleUpdate}
+                            loading={loading}
+                        />
+                    </div>
+
+                    {/* Fixed Chat Interface - Desktop Only */}
+                    <div className="fixed right-8 top-24 bottom-8 w-[400px] hidden lg:flex flex-col">
+                        <ChatInterface onTaskUpdate={fetchTasks} />
+                    </div>
+
+                    {/* Mobile Chat Drawer */}
+                    <AnimatePresence>
+                        {isMobileChatOpen && (
+                            <>
+                                {/* Backdrop */}
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    onClick={() => setIsMobileChatOpen(false)}
+                                    className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
+                                />
+
+                                {/* Drawer */}
+                                <motion.div
+                                    initial={{ x: '100%' }}
+                                    animate={{ x: 0 }}
+                                    exit={{ x: '100%' }}
+                                    transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+                                    className="fixed right-0 top-0 bottom-0 w-full sm:w-96 bg-slate-950 z-50 lg:hidden flex flex-col"
+                                >
+                                    {/* Close Button */}
+                                    <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+                                        <h2 className="text-lg font-semibold text-slate-200">Task Assistant</h2>
+                                        <motion.button
+                                            onClick={() => setIsMobileChatOpen(false)}
+                                            className="p-2 rounded-lg hover:bg-slate-800 text-slate-400 transition-colors"
+                                            whileHover={{ scale: 1.1 }}
+                                            whileTap={{ scale: 0.9 }}
+                                        >
+                                            <X className="w-5 h-5" />
+                                        </motion.button>
+                                    </div>
+
+                                    {/* Chat Interface */}
+                                    <div className="flex-1 overflow-hidden">
+                                        <ChatInterface onTaskUpdate={fetchTasks} />
+                                    </div>
+                                </motion.div>
+                            </>
+                        )}
+                    </AnimatePresence>
+
+                    {/* Floating Chat Button - Mobile Only */}
+                    <motion.button
+                        onClick={() => setIsMobileChatOpen(true)}
+                        className="fixed bottom-6 right-6 w-14 h-14 bg-linear-to-br from-blue-600 to-purple-600 rounded-full shadow-lg shadow-blue-500/30 flex items-center justify-center text-white z-30 lg:hidden"
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                    >
+                        <MessageSquare className="w-6 h-6" />
+                    </motion.button>
+                </div>
+            </div>
+        </ProtectedRoute>
+    );
+}

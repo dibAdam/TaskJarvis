@@ -1,154 +1,30 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { api, Task } from '@/lib/api';
-import { TaskList } from '@/components/TaskList';
+import React, { useState } from 'react';
 import { ChatInterface } from '@/components/ChatInterface';
 import { Dashboard } from '@/components/Dashboard';
 import { Settings } from '@/components/Settings';
-import { LayoutDashboard, ListTodo, MessageSquare, X } from 'lucide-react';
+import { MessageSquare, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { pageVariants } from '@/lib/animations';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
-import { useWorkspace } from '@/contexts/WorkspaceContext';
 
 export default function Home() {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'tasks' | 'dashboard'>('tasks');
   const [isMobileChatOpen, setIsMobileChatOpen] = useState(false);
-  const { currentWorkspace } = useWorkspace();
-
-  const fetchTasks = async () => {
-    setLoading(true);
-    try {
-      const data = await api.getTasks();
-      // Filter tasks by workspace if one is selected
-      const filteredTasks = currentWorkspace
-        ? data.filter(task => task.workspace_id === currentWorkspace.id)
-        : data;
-      setTasks(filteredTasks);
-    } catch (error) {
-      console.error('Failed to fetch tasks', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchTasks();
-  }, [currentWorkspace]);
-
-  const handleComplete = async (id: number) => {
-    try {
-      await api.updateTask(id, { status: 'completed' });
-      fetchTasks();
-    } catch (error) {
-      console.error('Failed to complete task', error);
-    }
-  };
-
-  const handleDelete = async (id: number) => {
-    try {
-      await api.deleteTask(id);
-      fetchTasks();
-    } catch (error) {
-      console.error('Failed to delete task', error);
-    }
-  };
-
-  const handleUpdate = async (id: number, updates: Partial<Task>) => {
-    try {
-      await api.updateTask(id, updates);
-      fetchTasks();
-    } catch (error) {
-      console.error('Failed to update task', error);
-    }
-  };
 
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-blue-500/30">
-
-        {/* Dashboard Content */}
         <div className="max-w-[calc(100vw-350px)] mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* View Switcher */}
-          <div className="flex justify-center mb-8">
-            <div className="flex bg-slate-900/50 p-1 rounded-xl border border-slate-800 relative backdrop-blur-md">
-              <motion.button
-                onClick={() => setActiveTab('tasks')}
-                className={`relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all z-10 ${activeTab === 'tasks'
-                  ? 'text-white'
-                  : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <ListTodo className="w-4 h-4 shrink-0" />
-                <span>Tasks</span>
-              </motion.button>
-              <motion.button
-                onClick={() => setActiveTab('dashboard')}
-                className={`relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all z-10 ${activeTab === 'dashboard'
-                  ? 'text-white'
-                  : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <LayoutDashboard className="w-4 h-4 shrink-0" />
-                <span>Board</span>
-              </motion.button>
-
-              {/* Animated Background */}
-              <motion.div
-                className="absolute top-1 bottom-1 bg-slate-800 rounded-lg shadow-sm"
-                initial={false}
-                animate={{
-                  left: activeTab === 'tasks' ? '4px' : 'calc(50% + 4px)',
-                  width: 'calc(50% - 8px)'
-                }}
-                transition={{
-                  type: 'spring',
-                  stiffness: 500,
-                  damping: 30
-                }}
-              />
-            </div>
-          </div>
-
           <div className="lg:mr-[420px]">
-            {/* Main Content Area with Page Transitions */}
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeTab}
-                variants={pageVariants}
-                initial="initial"
-                animate="animate"
-                exit="exit"
-                className="space-y-6"
-              >
-                {activeTab === 'tasks' ? (
-                  <TaskList
-                    tasks={tasks}
-                    onComplete={handleComplete}
-                    onDelete={handleDelete}
-                    onUpdate={handleUpdate}
-                    loading={loading}
-                  />
-                ) : (
-                  <div className="space-y-6">
-                    <Dashboard />
-                    <Settings />
-                  </div>
-                )}
-              </motion.div>
-            </AnimatePresence>
+            <div className="space-y-6">
+              <Dashboard />
+              <Settings />
+            </div>
           </div>
 
           {/* Fixed Chat Interface - Desktop Only */}
           <div className="fixed right-8 top-24 bottom-8 w-[400px] hidden lg:flex flex-col">
-            <ChatInterface onTaskUpdate={fetchTasks} />
+            <ChatInterface onTaskUpdate={() => { }} />
           </div>
 
           {/* Mobile Chat Drawer */}
@@ -187,7 +63,7 @@ export default function Home() {
 
                   {/* Chat Interface */}
                   <div className="flex-1 overflow-hidden">
-                    <ChatInterface onTaskUpdate={fetchTasks} />
+                    <ChatInterface onTaskUpdate={() => { }} />
                   </div>
                 </motion.div>
               </>
