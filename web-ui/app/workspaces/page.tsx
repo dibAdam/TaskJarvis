@@ -3,11 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Users, Loader2 } from 'lucide-react';
-import { WorkspaceProvider, useWorkspace } from '@/contexts/WorkspaceContext';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
 import WorkspaceCard from '@/components/WorkspaceCard';
 import CreateWorkspaceModal from '@/components/CreateWorkspaceModal';
 
-function WorkspacesPageContent() {
+export default function WorkspacesPage() {
     const { workspaces, isLoading, refreshWorkspaces } = useWorkspace();
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [currentUserId, setCurrentUserId] = useState<number | null>(null);
@@ -119,13 +119,5 @@ function WorkspacesPageContent() {
                 onClose={() => setIsCreateModalOpen(false)}
             />
         </div>
-    );
-}
-
-export default function WorkspacesPage() {
-    return (
-        <WorkspaceProvider>
-            <WorkspacesPageContent />
-        </WorkspaceProvider>
     );
 }

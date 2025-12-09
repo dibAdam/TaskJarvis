@@ -6,22 +6,18 @@ import { TaskList } from '@/components/TaskList';
 import { ChatInterface } from '@/components/ChatInterface';
 import { Dashboard } from '@/components/Dashboard';
 import { Settings } from '@/components/Settings';
-import { LayoutDashboard, ListTodo, MessageSquare, X, Users as WorkspacesIcon } from 'lucide-react';
+import { LayoutDashboard, ListTodo, MessageSquare, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { pageVariants } from '@/lib/animations';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
-import { UserProfile } from '@/components/UserProfile';
-import { WorkspaceProvider, useWorkspace } from '@/contexts/WorkspaceContext';
-import WorkspaceSelector from '@/components/WorkspaceSelector';
-import { useRouter } from 'next/navigation';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
 
-function HomeContent() {
+export default function Home() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'tasks' | 'dashboard'>('tasks');
   const [isMobileChatOpen, setIsMobileChatOpen] = useState(false);
   const { currentWorkspace } = useWorkspace();
-  const router = useRouter();
 
   const fetchTasks = async () => {
     setLoading(true);
@@ -72,36 +68,16 @@ function HomeContent() {
 
   return (
     <ProtectedRoute>
-      <main className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-blue-500/30">
-        {/* Fixed Header */}
-        <header className="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-800/50 px-3 sm:px-4 md:px-8 py-3 sm:py-4">
-          <div className="flex items-center justify-between gap-2 sm:gap-4">
-            {/* Left: Logo and Title */}
-            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-              <motion.div
-                className="w-8 h-8 sm:w-10 sm:h-10 bg-linear-to-br from-blue-600 to-purple-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0"
-                whileHover={{ scale: 1.05, rotate: 5 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <span className="text-lg sm:text-xl">⚡</span>
-              </motion.div>
-              <div className="min-w-0 hidden sm:block">
-                <h1 className="text-xl sm:text-2xl font-bold bg-clip-text text-transparent bg-linear-to-r from-blue-400 to-purple-400">
-                  TaskJarvis
-                </h1>
-                <p className="text-xs sm:text-sm text-slate-400 hidden md:block">AI-Powered Task Manager</p>
-              </div>
-              {/* Workspace Selector */}
-              <div className="hidden lg:block ml-4">
-                <WorkspaceSelector />
-              </div>
-            </div>
+      <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-blue-500/30">
 
-            {/* Center: Tab Navigation */}
-            <div className="flex bg-slate-900/50 p-0.5 sm:p-1 rounded-lg sm:rounded-xl border border-slate-800 relative backdrop-blur-md">
+        {/* Dashboard Content */}
+        <div className="max-w-[calc(100vw-350px)] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* View Switcher */}
+          <div className="flex justify-center mb-8">
+            <div className="flex bg-slate-900/50 p-1 rounded-xl border border-slate-800 relative backdrop-blur-md">
               <motion.button
                 onClick={() => setActiveTab('tasks')}
-                className={`relative flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 rounded-md sm:rounded-lg text-xs sm:text-sm font-medium transition-all z-10 ${activeTab === 'tasks'
+                className={`relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all z-10 ${activeTab === 'tasks'
                   ? 'text-white'
                   : 'text-slate-400 hover:text-slate-200'
                   }`}
@@ -109,11 +85,11 @@ function HomeContent() {
                 whileTap={{ scale: 0.98 }}
               >
                 <ListTodo className="w-4 h-4 shrink-0" />
-                <span className="hidden min-[480px]:inline">Tasks</span>
+                <span>Tasks</span>
               </motion.button>
               <motion.button
                 onClick={() => setActiveTab('dashboard')}
-                className={`relative flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 rounded-md sm:rounded-lg text-xs sm:text-sm font-medium transition-all z-10 ${activeTab === 'dashboard'
+                className={`relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all z-10 ${activeTab === 'dashboard'
                   ? 'text-white'
                   : 'text-slate-400 hover:text-slate-200'
                   }`}
@@ -121,16 +97,16 @@ function HomeContent() {
                 whileTap={{ scale: 0.98 }}
               >
                 <LayoutDashboard className="w-4 h-4 shrink-0" />
-                <span className="hidden min-[480px]:inline">Board</span>
+                <span>Board</span>
               </motion.button>
 
               {/* Animated Background */}
               <motion.div
-                className="absolute top-0.5 sm:top-1 bottom-0.5 sm:bottom-1 bg-slate-800 rounded-md sm:rounded-lg shadow-sm"
+                className="absolute top-1 bottom-1 bg-slate-800 rounded-lg shadow-sm"
                 initial={false}
                 animate={{
-                  left: activeTab === 'tasks' ? '2px' : 'calc(50% + 1px)',
-                  width: 'calc(50% - 3px)'
+                  left: activeTab === 'tasks' ? '4px' : 'calc(50% + 4px)',
+                  width: 'calc(50% - 8px)'
                 }}
                 transition={{
                   type: 'spring',
@@ -139,25 +115,8 @@ function HomeContent() {
                 }}
               />
             </div>
-
-            {/* Right: Workspaces Button & User Profile */}
-            <div className="flex items-center gap-2 sm:gap-3">
-              <motion.button
-                onClick={() => router.push('/workspaces')}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="flex items-center gap-2 px-3 py-2 bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg hover:bg-white/10 transition-all duration-200"
-              >
-                <WorkspacesIcon className="w-4 h-4 text-blue-400" />
-                <span className="text-sm font-medium text-white hidden sm:inline">Workspaces</span>
-              </motion.button>
-              <UserProfile />
-            </div>
           </div>
-        </header>
 
-        {/* Main Layout */}
-        <div className="pt-24 px-4 md:px-8 pb-8 max-w-[1600px] mx-auto">
           <div className="lg:mr-[420px]">
             {/* Main Content Area with Page Transitions */}
             <AnimatePresence mode="wait">
@@ -248,15 +207,9 @@ function HomeContent() {
             <MessageSquare className="w-6 h-6" />
           </motion.button>
         </div>
-      </main>
+      </div>
     </ProtectedRoute>
   );
 }
 
-export default function Home() {
-  return (
-    <WorkspaceProvider>
-      <HomeContent />
-    </WorkspaceProvider>
-  );
-}
+

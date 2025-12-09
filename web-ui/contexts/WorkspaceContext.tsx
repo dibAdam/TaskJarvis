@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { api, Workspace } from '@/lib/api';
+import { useAuth } from '@/hooks/useAuth';
 
 interface WorkspaceContextType {
     workspaces: Workspace[];
@@ -15,15 +16,23 @@ interface WorkspaceContextType {
 const WorkspaceContext = createContext<WorkspaceContextType | undefined>(undefined);
 
 export function WorkspaceProvider({ children }: { children: ReactNode }) {
+    const { isAuthenticated, loading: authLoading } = useAuth();
     const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
     const [currentWorkspace, setCurrentWorkspaceState] = useState<Workspace | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    // Load workspaces on mount
+    // Load workspaces only when authenticated
     useEffect(() => {
-        loadWorkspaces();
-    }, []);
+        if (!authLoading && isAuthenticated) {
+            loadWorkspaces();
+        } else if (!authLoading && !isAuthenticated) {
+            // Reset state when not authenticated
+            setWorkspaces([]);
+            setCurrentWorkspaceState(null);
+            setIsLoading(false);
+        }
+    }, [isAuthenticated, authLoading]);
 
     // Load saved workspace from localStorage
     useEffect(() => {
