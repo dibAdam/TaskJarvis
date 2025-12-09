@@ -288,3 +288,16 @@ body {
   min-height: 100px;
   aspect-ratio: 1 / 0.5;
 }
+
+/* Landing Page Animations */
+@keyframes gradientShift {
+
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+}
