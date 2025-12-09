@@ -49,7 +49,7 @@ export default function LoginPage() {
             <div className="absolute inset-0 overflow-hidden">
                 {/* Gradient Orbs */}
                 <motion.div
-                    className="absolute w-96 h-96 rounded-full bg-linear-to-r from-blue-500/30 to-purple-500/30 blur-3xl"
+                    className="absolute w-96 h-96 rounded-full bg-gradient-to-r from-blue-500/30 to-purple-500/30 blur-3xl"
                     animate={{
                         x: [0, 100, 0],
                         y: [0, -100, 0],
@@ -63,7 +63,7 @@ export default function LoginPage() {
                     style={{ top: '10%', left: '10%' }}
                 />
                 <motion.div
-                    className="absolute w-96 h-96 rounded-full bg-linear-to-r from-purple-500/30 to-pink-500/30 blur-3xl"
+                    className="absolute w-96 h-96 rounded-full bg-gradient-to-r from-purple-500/30 to-pink-500/30 blur-3xl"
                     animate={{
                         x: [0, -100, 0],
                         y: [0, 100, 0],
@@ -105,13 +105,13 @@ export default function LoginPage() {
                     transition={{ delay: 0.2 }}
                 >
                     <motion.div
-                        className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-linear-to-br from-blue-600 to-purple-600 mb-4 shadow-2xl shadow-blue-500/50"
+                        className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-600 to-purple-600 mb-4 shadow-2xl shadow-blue-500/50"
                         whileHover={{ scale: 1.1, rotate: 5 }}
                         whileTap={{ scale: 0.95 }}
                     >
                         <Zap className="w-10 h-10 text-white" />
                     </motion.div>
-                    <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-linear-to-r from-blue-400 via-purple-400 to-pink-400 mb-2">
+                    <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 mb-2">
                         Welcome Back
                     </h1>
                     <p className="text-slate-400">Sign in to continue your journey</p>
@@ -125,7 +125,7 @@ export default function LoginPage() {
                     className="relative bg-slate-900/50 backdrop-blur-2xl border border-slate-700/50 rounded-3xl p-8 shadow-2xl"
                 >
                     {/* Glow Effect */}
-                    <div className="absolute inset-0 rounded-3xl bg-linear-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 blur-xl" />
+                    <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 blur-xl" />
 
                     <div className="relative">
                         {/* Social Login */}
@@ -178,6 +178,9 @@ export default function LoginPage() {
                                         className="w-full pl-12 pr-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 text-slate-200 placeholder-slate-500 transition-all"
                                         placeholder="you@example.com"
                                         required
+                                        autoComplete="email"
+                                        aria-label="Email address"
+                                        aria-required="true"
                                     />
                                 </div>
                             </motion.div>
@@ -200,13 +203,17 @@ export default function LoginPage() {
                                         className="w-full pl-12 pr-12 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 text-slate-200 placeholder-slate-500 transition-all"
                                         placeholder="••••••••"
                                         required
+                                        autoComplete="current-password"
+                                        aria-label="Password"
+                                        aria-required="true"
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
                                         className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
+                                        aria-label={showPassword ? 'Hide password' : 'Show password'}
                                     >
-                                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                        {showPassword ? <EyeOff className="w-5 h-5" aria-hidden="true" /> : <Eye className="w-5 h-5" aria-hidden="true" />}
                                     </button>
                                 </div>
                             </motion.div>
@@ -231,7 +238,7 @@ export default function LoginPage() {
                                 disabled={isLoading}
                                 whileHover={{ scale: 1.02, y: -2 }}
                                 whileTap={{ scale: 0.98 }}
-                                className="w-full relative group overflow-hidden px-6 py-4 bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 rounded-xl font-semibold text-white shadow-lg shadow-blue-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="w-full relative group overflow-hidden px-6 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 rounded-xl font-semibold text-white shadow-lg shadow-blue-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <span className="relative z-10 flex items-center justify-center gap-2">
                                     {isLoading ? (
@@ -251,7 +258,7 @@ export default function LoginPage() {
                                     )}
                                 </span>
                                 <motion.div
-                                    className="absolute inset-0 bg-linear-to-r from-blue-400 to-purple-400"
+                                    className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400"
                                     initial={{ x: '-100%' }}
                                     whileHover={{ x: '100%' }}
                                     transition={{ duration: 0.5 }}

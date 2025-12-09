@@ -48,7 +48,7 @@ export default function JoinWorkspacePage() {
             <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="w-full max-w-md bg-linear-to-br from-white/5 to-white/2 backdrop-blur-xl border border-white/10 rounded-2xl p-8 text-center"
+                className="w-full max-w-md bg-gradient-to-br from-white/5 to-white/2 backdrop-blur-xl border border-white/10 rounded-2xl p-8 text-center"
             >
                 {isJoining && (
                     <>
@@ -102,7 +102,7 @@ export default function JoinWorkspacePage() {
                         <div className="space-y-3">
                             <button
                                 onClick={handleJoinWorkspace}
-                                className="w-full px-6 py-3 bg-linear-to-r from-blue-500 to-purple-500 rounded-xl text-white font-medium hover:from-blue-600 hover:to-purple-600 transition-all duration-200 shadow-lg shadow-blue-500/25"
+                                className="w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl text-white font-medium hover:from-blue-600 hover:to-purple-600 transition-all duration-200 shadow-lg shadow-blue-500/25"
                             >
                                 Try Again
                             </button>

@@ -86,7 +86,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onTaskUpdate }) =>
         <div className="flex flex-col h-full bg-slate-800/30 rounded-2xl border border-slate-700/50 overflow-hidden relative">
             {/* Animated Border Gradient */}
             <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                <div className="absolute inset-0 rounded-2xl bg-linear-to-r from-blue-500/20 via-purple-500/20 to-blue-500/20 animate-breathe" />
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-blue-500/20 animate-breathe" />
             </div>
 
             {/* Header with AI Avatar */}

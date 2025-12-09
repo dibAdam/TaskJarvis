@@ -21,20 +21,20 @@ export default function WorkspaceCard({ workspace, isOwner }: WorkspaceCardProps
     return (
         <motion.div
             onClick={handleClick}
-            className="group relative bg-linear-to-br from-white/5 to-white/2 backdrop-blur-xl border border-white/10 rounded-2xl p-6 cursor-pointer overflow-hidden"
+            className="group relative bg-gradient-to-br from-white/5 to-white/2 backdrop-blur-xl border border-white/10 rounded-2xl p-6 cursor-pointer overflow-hidden"
             whileHover={{ scale: 1.02, y: -4 }}
             whileTap={{ scale: 0.98 }}
             transition={{ duration: 0.2 }}
         >
             {/* Gradient overlay on hover */}
-            <div className="absolute inset-0 bg-linear-to-br from-blue-500/0 to-purple-500/0 group-hover:from-blue-500/10 group-hover:to-purple-500/10 transition-all duration-300 rounded-2xl" />
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-purple-500/0 group-hover:from-blue-500/10 group-hover:to-purple-500/10 transition-all duration-300 rounded-2xl" />
 
             {/* Content */}
             <div className="relative z-10">
                 {/* Header */}
                 <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
-                        <div className="p-2.5 bg-linear-to-br from-blue-500/20 to-purple-500/20 border border-blue-500/30 rounded-xl">
+                        <div className="p-2.5 bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-blue-500/30 rounded-xl">
                             <Users className="w-5 h-5 text-blue-400" />
                         </div>
                         <div>

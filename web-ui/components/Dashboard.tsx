@@ -127,31 +127,6 @@ export const Dashboard: React.FC = () => {
 
     return (
         <div className="space-y-6">
-            {/* Floating Particles Background */}
-            <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10 hidden sm:block">
-                {[...Array(10)].map((_, i) => (
-                    <motion.div
-                        key={i}
-                        className="absolute w-1 h-1 bg-blue-400/30 rounded-full"
-                        animate={{
-                            x: [Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000), Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000)],
-                            y: [Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 1000), Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 1000)],
-                            scale: [1, 1.5, 1],
-                            opacity: [0.3, 0.6, 0.3]
-                        }}
-                        transition={{
-                            duration: Math.random() * 10 + 10,
-                            repeat: Infinity,
-                            ease: "linear"
-                        }}
-                        style={{
-                            left: Math.random() * 100 + '%',
-                            top: Math.random() * 100 + '%'
-                        }}
-                    />
-                ))}
-            </div>
-
             {/* Header with Stats */}
             <motion.div
                 initial={{ opacity: 0, y: -20 }}
@@ -160,14 +135,14 @@ export const Dashboard: React.FC = () => {
             >
                 <div className="flex items-center gap-2 sm:gap-3">
                     <motion.div
-                        className="p-2 sm:p-3 rounded-xl bg-linear-to-br from-blue-600 to-purple-600 shrink-0"
+                        className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 shrink-0"
                         whileHover={{ scale: 1.1, rotate: 5 }}
                         whileTap={{ scale: 0.9 }}
                     >
                         <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                     </motion.div>
                     <div className="min-w-0">
-                        <h2 className="text-xl sm:text-2xl font-bold bg-clip-text text-transparent bg-linear-to-r from-blue-400 to-purple-400">
+                        <h2 className="text-xl sm:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
                             Task Board
                         </h2>
                         <p className="text-slate-400 text-xs sm:text-sm">Manage your tasks with style</p>
@@ -227,7 +202,7 @@ export const Dashboard: React.FC = () => {
                             {/* Column Container */}
                             <div className="relative bg-slate-900/30 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-3 sm:p-4 min-h-[300px] sm:min-h-[400px] lg:min-h-[500px]">
                                 {/* Gradient Overlay */}
-                                <div className={`absolute inset-0 bg-linear-to-br ${column.gradient} rounded-2xl opacity-50`} />
+                                <div className={`absolute inset-0 bg-gradient-to-br ${column.gradient} rounded-2xl opacity-50`} />
 
                                 {/* Column Header */}
                                 <div className="relative z-10 mb-3 sm:mb-4">
@@ -248,7 +223,7 @@ export const Dashboard: React.FC = () => {
                                             {columnTasks.length}
                                         </motion.div>
                                     </div>
-                                    <div className={`h-0.5 sm:h-1 rounded-full bg-linear-to-r ${column.gradient.replace('/20', '/50')}`} />
+                                    <div className={`h-0.5 sm:h-1 rounded-full bg-gradient-to-r ${column.gradient.replace('/20', '/50')}`} />
                                 </div>
 
                                 {/* Tasks */}

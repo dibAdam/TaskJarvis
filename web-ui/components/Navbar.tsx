@@ -27,14 +27,14 @@ export default function Navbar() {
                     <div className="flex items-center gap-4 md:gap-6">
                         <Link href="/" className="flex items-center gap-2 group">
                             <motion.div
-                                className="w-10 h-10 bg-linear-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0"
+                                className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0"
                                 whileHover={{ scale: 1.05, rotate: 5 }}
                                 whileTap={{ scale: 0.95 }}
                             >
                                 <span className="text-xl">⚡</span>
                             </motion.div>
                             <div>
-                                <h1 className="text-xl font-bold bg-clip-text text-transparent bg-linear-to-r from-blue-400 to-purple-400 group-hover:opacity-80 transition-opacity">
+                                <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400 group-hover:opacity-80 transition-opacity">
                                     TaskJarvis
                                 </h1>
                             </div>
@@ -88,12 +88,12 @@ export default function Navbar() {
                 <div className="flex items-center justify-between">
                     <Link href="/" className="flex items-center gap-2">
                         <motion.div
-                            className="w-10 h-10 bg-linear-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20"
+                            className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20"
                             whileTap={{ scale: 0.95 }}
                         >
                             <span className="text-xl">⚡</span>
                         </motion.div>
-                        <h1 className="text-lg font-bold bg-clip-text text-transparent bg-linear-to-r from-blue-400 to-purple-400">
+                        <h1 className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
                             TaskJarvis
                         </h1>
                     </Link>

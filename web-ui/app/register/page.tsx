@@ -79,7 +79,7 @@ export default function RegisterPage() {
             <div className="absolute inset-0 overflow-hidden">
                 {/* Gradient Orbs */}
                 <motion.div
-                    className="absolute w-[500px] h-[500px] rounded-full bg-linear-to-r from-purple-500/30 to-pink-500/30 blur-3xl"
+                    className="absolute w-[500px] h-[500px] rounded-full bg-gradient-to-r from-purple-500/30 to-pink-500/30 blur-3xl"
                     animate={{
                         x: [0, -100, 0],
                         y: [0, 100, 0],
@@ -93,7 +93,7 @@ export default function RegisterPage() {
                     style={{ top: '5%', right: '10%' }}
                 />
                 <motion.div
-                    className="absolute w-[500px] h-[500px] rounded-full bg-linear-to-r from-blue-500/30 to-cyan-500/30 blur-3xl"
+                    className="absolute w-[500px] h-[500px] rounded-full bg-gradient-to-r from-blue-500/30 to-cyan-500/30 blur-3xl"
                     animate={{
                         x: [0, 100, 0],
                         y: [0, -100, 0],
@@ -135,7 +135,7 @@ export default function RegisterPage() {
                     transition={{ delay: 0.2 }}
                 >
                     <motion.div
-                        className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-linear-to-br from-purple-600 to-pink-600 mb-4 shadow-2xl shadow-purple-500/50"
+                        className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 mb-4 shadow-2xl shadow-purple-500/50"
                         whileHover={{ scale: 1.1, rotate: -5 }}
                         whileTap={{ scale: 0.95 }}
                         animate={{
@@ -149,7 +149,7 @@ export default function RegisterPage() {
                     >
                         <Sparkles className="w-10 h-10 text-white" />
                     </motion.div>
-                    <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-linear-to-r from-purple-400 via-pink-400 to-blue-400 mb-2">
+                    <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 mb-2">
                         Join TaskJarvis
                     </h1>
                     <p className="text-slate-400">Start your productivity journey today</p>
@@ -357,7 +357,7 @@ export default function RegisterPage() {
                                 disabled={isLoading}
                                 whileHover={{ scale: 1.02, y: -2 }}
                                 whileTap={{ scale: 0.98 }}
-                                className="w-full relative group overflow-hidden px-6 py-4 bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-xl font-semibold text-white shadow-lg shadow-purple-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-6"
+                                className="w-full relative group overflow-hidden px-6 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-xl font-semibold text-white shadow-lg shadow-purple-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-6"
                             >
                                 <span className="relative z-10 flex items-center justify-center gap-2">
                                     {isLoading ? (
@@ -377,7 +377,7 @@ export default function RegisterPage() {
                                     )}
                                 </span>
                                 <motion.div
-                                    className="absolute inset-0 bg-linear-to-r from-purple-400 to-pink-400"
+                                    className="absolute inset-0 bg-gradient-to-r from-purple-400 to-pink-400"
                                     initial={{ x: '-100%' }}
                                     whileHover={{ x: '100%' }}
                                     transition={{ duration: 0.5 }}

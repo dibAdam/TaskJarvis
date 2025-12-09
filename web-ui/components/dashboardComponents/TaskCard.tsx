@@ -72,7 +72,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onUpdate, onDelete, on
                 />
 
                 {/* Glow Effect */}
-                <div className="absolute -inset-1 bg-linear-to-r from-blue-500/0 via-purple-500/20 to-pink-500/0 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500 -z-10" />
+                <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/0 via-purple-500/20 to-pink-500/0 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500 -z-10" />
 
                 {/* Content */}
                 <div className="relative z-10 space-y-2 sm:space-y-3">

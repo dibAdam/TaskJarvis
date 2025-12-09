@@ -77,13 +77,13 @@ export default function CreateWorkspaceModal({ isOpen, onClose }: CreateWorkspac
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.9, y: 20 }}
                             transition={{ type: 'spring', duration: 0.5 }}
-                            className="w-full max-w-md bg-linear-to-br from-gray-900/95 to-gray-800/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
+                            className="w-full max-w-md bg-gradient-to-br from-gray-900/95 to-gray-800/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
                             onClick={(e) => e.stopPropagation()}
                         >
                             {/* Header */}
                             <div className="relative p-6 border-b border-white/10">
                                 <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-linear-to-br from-blue-500/20 to-purple-500/20 border border-blue-500/30 rounded-xl">
+                                    <div className="p-2 bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-blue-500/30 rounded-xl">
                                         <Sparkles className="w-5 h-5 text-blue-400" />
                                     </div>
                                     <h2 className="text-xl font-bold text-white">Create Workspace</h2>
@@ -157,7 +157,7 @@ export default function CreateWorkspaceModal({ isOpen, onClose }: CreateWorkspac
                                     <button
                                         type="submit"
                                         disabled={isLoading || !name.trim()}
-                                        className="flex-1 px-4 py-3 bg-linear-to-r from-blue-500 to-purple-500 rounded-xl text-white font-medium hover:from-blue-600 hover:to-purple-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/25"
+                                        className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl text-white font-medium hover:from-blue-600 hover:to-purple-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/25"
                                     >
                                         {isLoading ? 'Creating...' : 'Create Workspace'}
                                     </button>

@@ -121,11 +121,11 @@ export default function WorkspaceDetailsPage() {
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-linear-to-br from-white/5 to-white/2 backdrop-blur-xl border border-white/10 rounded-2xl p-8 mb-8"
+                    className="bg-gradient-to-br from-white/5 to-white/2 backdrop-blur-xl border border-white/10 rounded-2xl p-8 mb-8"
                 >
                     <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-linear-to-br from-blue-500/20 to-purple-500/20 border border-blue-500/30 rounded-xl">
+                            <div className="p-3 bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-blue-500/30 rounded-xl">
                                 <Users className="w-8 h-8 text-blue-400" />
                             </div>
                             <div>
@@ -161,7 +161,7 @@ export default function WorkspaceDetailsPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="bg-linear-to-br from-white/5 to-white/2 backdrop-blur-xl border border-white/10 rounded-2xl p-8"
+                    className="bg-gradient-to-br from-white/5 to-white/2 backdrop-blur-xl border border-white/10 rounded-2xl p-8"
                 >
                     <div className="flex items-center justify-between mb-6">
                         <h2 className="text-2xl font-bold text-white">Members</h2>
@@ -171,7 +171,7 @@ export default function WorkspaceDetailsPage() {
                                 onClick={() => setIsInviteModalOpen(true)}
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
-                                className="flex items-center gap-2 px-4 py-2 bg-linear-to-r from-green-500 to-blue-500 rounded-xl text-white font-medium shadow-lg shadow-green-500/25"
+                                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-blue-500 rounded-xl text-white font-medium shadow-lg shadow-green-500/25"
                             >
                                 <UserPlus className="w-4 h-4" />
                                 Invite Members

@@ -28,14 +28,14 @@ export const AIAvatar: React.FC<AIAvatarProps> = ({
         <div className="relative inline-flex items-center justify-center">
             {/* Glow Effect */}
             <motion.div
-                className={`absolute ${sizeClasses[size]} rounded-full bg-linear-to-br from-blue-500 to-purple-600 blur-xl`}
+                className={`absolute ${sizeClasses[size]} rounded-full bg-gradient-to-br from-blue-500 to-purple-600 blur-xl`}
                 variants={glowVariants}
                 animate={state}
             />
 
             {/* Avatar Container */}
             <motion.div
-                className={`relative ${sizeClasses[size]} rounded-full bg-linear-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-lg`}
+                className={`relative ${sizeClasses[size]} rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-lg`}
                 variants={avatarVariants}
                 animate={state}
             >

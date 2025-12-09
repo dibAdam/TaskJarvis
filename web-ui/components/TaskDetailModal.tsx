@@ -247,7 +247,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, isOpen, 
                                 </motion.button>
                                 <motion.button
                                     onClick={handleSave}
-                                    className="px-6 py-2.5 rounded-lg bg-linear-to-r from-blue-600 to-purple-600 text-white hover:from-blue-500 hover:to-purple-500 transition-all font-medium shadow-lg shadow-blue-500/30 flex items-center gap-2"
+                                    className="px-6 py-2.5 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-500 hover:to-purple-500 transition-all font-medium shadow-lg shadow-blue-500/30 flex items-center gap-2"
                                     whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.98 }}
                                 >

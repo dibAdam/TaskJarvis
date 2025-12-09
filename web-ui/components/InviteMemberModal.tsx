@@ -90,13 +90,13 @@ export default function InviteMemberModal({ isOpen, onClose, workspaceId, worksp
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.9, y: 20 }}
                             transition={{ type: 'spring', duration: 0.5 }}
-                            className="w-full max-w-md bg-linear-to-br from-gray-900/95 to-gray-800/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
+                            className="w-full max-w-md bg-gradient-to-br from-gray-900/95 to-gray-800/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
                             onClick={(e) => e.stopPropagation()}
                         >
                             {/* Header */}
                             <div className="relative p-6 border-b border-white/10">
                                 <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-linear-to-br from-green-500/20 to-blue-500/20 border border-green-500/30 rounded-xl">
+                                    <div className="p-2 bg-gradient-to-br from-green-500/20 to-blue-500/20 border border-green-500/30 rounded-xl">
                                         <Mail className="w-5 h-5 text-green-400" />
                                     </div>
                                     <div>
@@ -160,7 +160,7 @@ export default function InviteMemberModal({ isOpen, onClose, workspaceId, worksp
                                             <button
                                                 type="submit"
                                                 disabled={isLoading || !email.trim()}
-                                                className="flex-1 px-4 py-3 bg-linear-to-r from-green-500 to-blue-500 rounded-xl text-white font-medium hover:from-green-600 hover:to-blue-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-green-500/25"
+                                                className="flex-1 px-4 py-3 bg-gradient-to-r from-green-500 to-blue-500 rounded-xl text-white font-medium hover:from-green-600 hover:to-blue-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-green-500/25"
                                             >
                                                 {isLoading ? 'Generating...' : 'Generate Link'}
                                             </button>
@@ -208,7 +208,7 @@ export default function InviteMemberModal({ isOpen, onClose, workspaceId, worksp
 
                                         <button
                                             onClick={handleClose}
-                                            className="w-full px-4 py-3 bg-linear-to-r from-blue-500 to-purple-500 rounded-xl text-white font-medium hover:from-blue-600 hover:to-purple-600 transition-all duration-200 shadow-lg shadow-blue-500/25"
+                                            className="w-full px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl text-white font-medium hover:from-blue-600 hover:to-purple-600 transition-all duration-200 shadow-lg shadow-blue-500/25"
                                         >
                                             Done
                                         </button>

@@ -24,6 +24,9 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-inter), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  /* Prevent layout shift */
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
 /* Mobile-specific font sizing */
@@ -182,35 +185,43 @@ body {
 /* Utility Classes */
 .animate-confetti {
   animation: confetti 1s ease-out forwards;
+  will-change: transform, opacity;
 }
 
 .animate-breathe {
   animation: breathe 2s ease-in-out infinite;
+  will-change: transform;
 }
 
 .animate-glow-pulse {
   animation: glowPulse 2s ease-in-out infinite;
+  will-change: box-shadow, opacity;
 }
 
 .animate-slide-in {
   animation: slideInFromBottom 0.4s ease-out;
+  will-change: transform, opacity;
 }
 
 .animate-wave {
   animation: wave 0.6s ease-in-out infinite;
+  will-change: transform;
 }
 
 /* Priority Gradient Utilities */
 .bg-priority-high {
   background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(249, 115, 22, 0.05) 100%);
+  contain: layout style;
 }
 
 .bg-priority-medium {
   background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(251, 191, 36, 0.05) 100%);
+  contain: layout style;
 }
 
 .bg-priority-low {
   background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(6, 182, 212, 0.05) 100%);
+  contain: layout style;
 }
 
 .border-glow-high {
@@ -223,4 +234,57 @@ body {
 
 .border-glow-low {
   box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+}
+
+/* Performance optimizations */
+.gpu-accelerate {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* Prevent layout shift for dynamic content */
+[data-loading] {
+  min-height: 200px;
+  contain: layout;
+}
+
+/* CLS Prevention Utilities */
+.prevent-cls {
+  content-visibility: auto;
+  contain: layout style paint;
+}
+
+/* Fixed heights for consistent layout */
+.navbar-height {
+  height: 4rem;
+  /* 64px for desktop */
+}
+
+@media (max-width: 768px) {
+  .navbar-height {
+    height: 3.5rem;
+    /* 56px for mobile */
+  }
+}
+
+/* Skeleton loader utilities */
+.skeleton {
+  background: linear-gradient(90deg,
+      rgba(30, 41, 59, 0.4) 0%,
+      rgba(51, 65, 85, 0.4) 50%,
+      rgba(30, 41, 59, 0.4) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 0.5rem;
+}
+
+/* Reserve space for async content */
+.task-card-skeleton {
+  min-height: 120px;
+  aspect-ratio: 1 / 0.4;
+}
+
+.stat-card-skeleton {
+  min-height: 100px;
+  aspect-ratio: 1 / 0.5;
 }

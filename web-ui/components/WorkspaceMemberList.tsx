@@ -88,7 +88,7 @@ export default function WorkspaceMemberList({
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4 flex-1 min-w-0">
                             {/* Avatar */}
-                            <div className="w-12 h-12 rounded-full bg-linear-to-br from-blue-500 to-purple-500 flex items-center justify-center shrink-0">
+                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center shrink-0">
                                 <span className="text-white font-semibold text-lg">
                                     {member.username.charAt(0).toUpperCase()}
                                 </span>

@@ -35,7 +35,7 @@ export const ViewModeToggle: React.FC<ViewModeToggleProps> = ({ currentMode, onM
                     {currentMode === mode.id && (
                         <motion.div
                             layoutId="activeMode"
-                            className="absolute inset-0 bg-linear-to-br from-blue-600/80 to-purple-600/80 rounded-lg shadow-lg"
+                            className="absolute inset-0 bg-gradient-to-br from-blue-600/80 to-purple-600/80 rounded-lg shadow-lg"
                             transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                         />
                     )}

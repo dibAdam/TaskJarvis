@@ -127,7 +127,7 @@ export default function TasksPage() {
                     {/* Floating Chat Button - Mobile Only */}
                     <motion.button
                         onClick={() => setIsMobileChatOpen(true)}
-                        className="fixed bottom-6 right-6 w-14 h-14 bg-linear-to-br from-blue-600 to-purple-600 rounded-full shadow-lg shadow-blue-500/30 flex items-center justify-center text-white z-30 lg:hidden"
+                        className="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full shadow-lg shadow-blue-500/30 flex items-center justify-center text-white z-30 lg:hidden"
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
                         initial={{ scale: 0 }}

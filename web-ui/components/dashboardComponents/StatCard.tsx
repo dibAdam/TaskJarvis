@@ -41,7 +41,7 @@ export const StatCard: React.FC<StatCardProps> = ({ icon, label, value, color, g
             whileHover={{ scale: 1.05, y: -5 }}
             className="relative group"
         >
-            <div className={`relative bg-linear-to-br ${gradient} backdrop-blur-xl border border-slate-700/50 rounded-2xl p-4 sm:p-6 overflow-hidden`}>
+            <div className={`relative bg-gradient-to-br ${gradient} backdrop-blur-xl border border-slate-700/50 rounded-2xl p-4 sm:p-6 overflow-hidden`}>
                 {/* Animated Background */}
                 <motion.div
                     className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"

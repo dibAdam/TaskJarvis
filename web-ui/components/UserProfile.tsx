@@ -30,7 +30,7 @@ export function UserProfile() {
                 whileTap={{ scale: 0.98 }}
             >
                 {/* Avatar */}
-                <div className="w-8 h-8 rounded-full bg-linear-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white font-semibold text-sm shadow-lg">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white font-semibold text-sm shadow-lg">
                     {initials}
                 </div>
 

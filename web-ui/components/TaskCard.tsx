@@ -91,7 +91,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onComplete, onDelete, 
                 boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)'
             }}
             layout
-            className={`group relative bg-linear-to-br ${styles.gradient} backdrop-blur-sm border ${styles.border} rounded-2xl ${compact ? 'p-3' : 'p-6'
+            className={`group relative bg-gradient-to-br ${styles.gradient} backdrop-blur-sm border ${styles.border} rounded-2xl ${compact ? 'p-3' : 'p-6'
                 } transition-all duration-300 hover:shadow-2xl hover:${styles.glow} overflow-hidden cursor-grab active:cursor-grabbing
                 before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:rounded-l-2xl ${styles.accentBorder} before:opacity-60 hover:before:opacity-100 before:transition-opacity
                 ${task.status === 'completed' ? 'opacity-60' : ''}`}

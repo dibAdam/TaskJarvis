@@ -53,7 +53,7 @@ export default function ProfilePage() {
                                 <span className="text-sm font-medium">Back to Dashboard</span>
                             </motion.button>
                         </div>
-                        <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-linear-to-r from-blue-400 to-purple-400">
+                        <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
                             Account Settings
                         </h1>
                         <div className="w-32" /> {/* Spacer for centering */}
@@ -68,15 +68,15 @@ export default function ProfilePage() {
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="relative bg-linear-to-br from-slate-900/50 to-slate-800/30 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-8 mb-8 overflow-hidden"
+                        className="relative bg-gradient-to-br from-slate-900/50 to-slate-800/30 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-8 mb-8 overflow-hidden"
                     >
                         {/* Background Pattern */}
-                        <div className="absolute inset-0 bg-linear-to-br from-blue-500/5 to-purple-500/5" />
+                        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5" />
 
                         <div className="relative flex flex-col md:flex-row items-center md:items-start gap-6">
                             {/* Avatar */}
                             <div className="relative group">
-                                <div className="w-32 h-32 rounded-full bg-linear-to-br from-blue-600 to-purple-600 flex items-center justify-center text-4xl font-bold shadow-xl">
+                                <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-4xl font-bold shadow-xl">
                                     {userData.name.split(' ').map(n => n[0]).join('')}
                                 </div>
                                 <motion.button
