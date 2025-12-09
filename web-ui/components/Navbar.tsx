@@ -19,66 +19,110 @@ export default function Navbar() {
     ];
 
     return (
-        <header className="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-800/50 px-4 md:px-8 py-3">
-            <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-                {/* Left: Logo and Workspace Selector */}
-                <div className="flex items-center gap-4 md:gap-6">
-                    <Link href="/" className="flex items-center gap-2 group">
+        <>
+            {/* Desktop Navbar */}
+            <header className="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-800/50 px-4 md:px-8 py-3 hidden md:block">
+                <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+                    {/* Left: Logo and Workspace Selector */}
+                    <div className="flex items-center gap-4 md:gap-6">
+                        <Link href="/" className="flex items-center gap-2 group">
+                            <motion.div
+                                className="w-10 h-10 bg-linear-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0"
+                                whileHover={{ scale: 1.05, rotate: 5 }}
+                                whileTap={{ scale: 0.95 }}
+                            >
+                                <span className="text-xl">⚡</span>
+                            </motion.div>
+                            <div>
+                                <h1 className="text-xl font-bold bg-clip-text text-transparent bg-linear-to-r from-blue-400 to-purple-400 group-hover:opacity-80 transition-opacity">
+                                    TaskJarvis
+                                </h1>
+                            </div>
+                        </Link>
+
+                        <div className="h-8 w-px bg-slate-800" />
+
+                        <div className="w-64">
+                            <WorkspaceSelector />
+                        </div>
+                    </div>
+
+                    {/* Center: Navigation Links */}
+                    <nav className="flex items-center gap-1 bg-slate-900/50 p-1 rounded-xl border border-slate-800/50">
+                        {navItems.map((item) => {
+                            const isActive = pathname === item.href;
+                            return (
+                                <Link key={item.name} href={item.href}>
+                                    <motion.div
+                                        className={`relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isActive ? 'text-white' : 'text-slate-400 hover:text-slate-200'
+                                            }`}
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                    >
+                                        {isActive && (
+                                            <motion.div
+                                                layoutId="navbar-active"
+                                                className="absolute inset-0 bg-slate-800 rounded-lg"
+                                                transition={{ type: 'spring', duration: 0.5 }}
+                                            />
+                                        )}
+                                        <span className="relative z-10 flex items-center gap-2">
+                                            <item.icon className="w-4 h-4" />
+                                            {item.name}
+                                        </span>
+                                    </motion.div>
+                                </Link>
+                            );
+                        })}
+                    </nav>
+
+                    {/* Right: User Profile */}
+                    <div className="flex items-center gap-4">
+                        <UserProfile />
+                    </div>
+                </div>
+            </header>
+
+            {/* Mobile Top Bar */}
+            <header className="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-800/50 px-4 py-3 md:hidden">
+                <div className="flex items-center justify-between">
+                    <Link href="/" className="flex items-center gap-2">
                         <motion.div
-                            className="w-10 h-10 bg-linear-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0"
-                            whileHover={{ scale: 1.05, rotate: 5 }}
+                            className="w-10 h-10 bg-linear-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20"
                             whileTap={{ scale: 0.95 }}
                         >
                             <span className="text-xl">⚡</span>
                         </motion.div>
-                        <div className="hidden md:block">
-                            <h1 className="text-xl font-bold bg-clip-text text-transparent bg-linear-to-r from-blue-400 to-purple-400 group-hover:opacity-80 transition-opacity">
-                                TaskJarvis
-                            </h1>
-                        </div>
+                        <h1 className="text-lg font-bold bg-clip-text text-transparent bg-linear-to-r from-blue-400 to-purple-400">
+                            TaskJarvis
+                        </h1>
                     </Link>
-
-                    <div className="h-8 w-px bg-slate-800 hidden md:block" />
-
-                    <div className="hidden md:block w-64">
-                        <WorkspaceSelector />
-                    </div>
+                    <UserProfile />
                 </div>
+            </header>
 
-                {/* Center: Navigation Links */}
-                <nav className="hidden md:flex items-center gap-1 bg-slate-900/50 p-1 rounded-xl border border-slate-800/50">
+            {/* Mobile Bottom Navigation */}
+            <nav className="fixed bottom-0 left-0 right-0 z-50 bg-slate-950/95 backdrop-blur-md border-t border-slate-800/50 md:hidden">
+                <div className="flex items-center justify-around px-2 py-3">
                     {navItems.map((item) => {
                         const isActive = pathname === item.href;
                         return (
-                            <Link key={item.name} href={item.href}>
+                            <Link key={item.name} href={item.href} className="flex-1">
                                 <motion.div
-                                    className={`relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isActive ? 'text-white' : 'text-slate-400 hover:text-slate-200'
+                                    className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors ${isActive
+                                        ? 'text-white bg-slate-800/50'
+                                        : 'text-slate-400'
                                         }`}
-                                    whileHover={{ scale: 1.02 }}
-                                    whileTap={{ scale: 0.98 }}
+                                    whileTap={{ scale: 0.95 }}
                                 >
-                                    {isActive && (
-                                        <motion.div
-                                            layoutId="navbar-active"
-                                            className="absolute inset-0 bg-slate-800 rounded-lg"
-                                            transition={{ type: 'spring', duration: 0.5 }}
-                                        />
-                                    )}
-                                    <span className="relative z-10 flex items-center gap-2">
-                                        <item.icon className="w-4 h-4" />
-                                        {item.name}
-                                    </span>
+                                    <item.icon className={`w-5 h-5 ${isActive ? 'text-blue-400' : ''}`} />
+                                    <span className="text-xs font-medium">{item.name}</span>
                                 </motion.div>
                             </Link>
                         );
                     })}
-                </nav>
-
-                {/* Right: User Profile & Mobile Menu Toggle */}
-                <div className="flex items-center gap-4">
-                    <UserProfile />
                 </div>
-            </div>
-        </header>
+            </nav>
+        </>
     );
 }

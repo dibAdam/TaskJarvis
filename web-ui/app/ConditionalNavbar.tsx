@@ -16,7 +16,8 @@ export default function ConditionalNavbar() {
     return (
         <>
             <Navbar />
-            <div className="pt-20" />
+            {/* Spacer for fixed navbar */}
+            <div className="h-16 md:h-20" />
         </>
     );
 }

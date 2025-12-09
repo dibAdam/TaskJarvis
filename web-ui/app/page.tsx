@@ -14,7 +14,7 @@ export default function Home() {
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-blue-500/30">
-        <div className="max-w-[calc(100vw-350px)] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="w-full max-w-7xl lg:max-w-[calc(100vw-350px)] mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-8">
           <div className="lg:mr-[420px]">
             <div className="space-y-6">
               <Dashboard />

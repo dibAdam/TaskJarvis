@@ -59,7 +59,7 @@ export default function WorkspacesPage() {
                             className="flex items-center gap-2 px-6 py-3 bg-linear-to-r from-blue-500 to-purple-500 rounded-xl text-white font-medium shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-200"
                         >
                             <Plus className="w-5 h-5" />
-                            Create Workspace
+                            <span className="hidden sm:inline">Create Workspace</span>
                         </motion.button>
                     </motion.div>
                 </div>
