@@ -66,7 +66,7 @@ export function LandingNav() {
                         <Link href="/register">
                             <motion.button
                                 className={`
-                                    px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300
+                                    px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 hidden md:block
                                     ${isScrolled ? 'bg-white text-black hover:bg-slate-200' : 'bg-white/10 text-white border border-white/10 hover:bg-white/20'}
                                 `}
                                 whileHover={{ scale: 1.05 }}
