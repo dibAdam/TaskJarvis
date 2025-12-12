@@ -1,6 +1,6 @@
-import { getStoredToken, refreshToken as refreshAuthToken, logout } from './auth';
+import { refreshToken as refreshAuthToken, logout } from './auth';
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = '/api';
 
 export interface Task {
   id: number;
@@ -11,6 +11,12 @@ export interface Task {
   status: string;
   reminder_offset?: number;  // Minutes before deadline to send reminder
   workspace_id?: number;  // Optional workspace assignment
+  user_id?: number;  // Task creator/owner
+  assigned_to_id?: number;  // User assigned to this task
+  recurrence_rule?: string;  // Recurrence pattern
+  last_reminded_at?: string;  // Last time reminder was sent
+  created_at?: string;  // Task creation timestamp
+  updated_at?: string;  // Last update timestamp
 }
 
 export interface ChatResponse {
@@ -48,28 +54,22 @@ export interface InvitationToken {
 }
 
 /**
- * Get auth headers with current token
+ * Get headers for requests
+ * Note: Authorization header is not needed as we use HTTP-only cookies
  */
-function getAuthHeaders(): HeadersInit {
-  const token = getStoredToken();
-  const headers: HeadersInit = {
+function getHeaders(): HeadersInit {
+  return {
     'Content-Type': 'application/json',
   };
-  
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
-  
-  return headers;
 }
 
 /**
  * Fetch with automatic token refresh on 401
  */
 async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Response> {
-  // Add auth headers
+  // Add headers
   const headers = {
-    ...getAuthHeaders(),
+    ...getHeaders(),
     ...options.headers,
   };
 
@@ -79,16 +79,12 @@ async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Re
   if (response.status === 401) {
     try {
       await refreshAuthToken();
-      
-      // Retry with new token
-      const newHeaders = {
-        ...getAuthHeaders(),
-        ...options.headers,
-      };
-      response = await fetch(url, { ...options, headers: newHeaders });
+
+      // Retry with new session cookie (automatically sent)
+      response = await fetch(url, { ...options, headers });
     } catch (error) {
       // Refresh failed, logout user
-      logout();
+      await logout();
       throw new Error('Session expired. Please login again.');
     }
   }
@@ -102,14 +98,14 @@ export const api = {
     const params = new URLSearchParams();
     if (status) params.append('status', status);
     if (priority) params.append('priority', priority);
-    
-    const res = await fetchWithAuth(`${API_BASE_URL}/tasks/?${params.toString()}`);
+
+    const res = await fetchWithAuth(`${API_BASE_URL}/tasks?${params.toString()}`);
     if (!res.ok) throw new Error('Failed to fetch tasks');
     return res.json();
   },
 
   createTask: async (task: Omit<Task, 'id'>): Promise<Task> => {
-    const res = await fetchWithAuth(`${API_BASE_URL}/tasks/`, {
+    const res = await fetchWithAuth(`${API_BASE_URL}/tasks`, {
       method: 'POST',
       body: JSON.stringify(task),
     });
@@ -133,6 +129,27 @@ export const api = {
     if (!res.ok) throw new Error('Failed to delete task');
   },
 
+  getAssignedTasks: async (): Promise<Task[]> => {
+    const res = await fetchWithAuth(`${API_BASE_URL}/tasks/assigned`);
+    if (!res.ok) throw new Error('Failed to fetch assigned tasks');
+    return res.json();
+  },
+
+  exportTasks: async (): Promise<{ tasks: Task[] }> => {
+    const res = await fetchWithAuth(`${API_BASE_URL}/tasks/export`);
+    if (!res.ok) throw new Error('Failed to export tasks');
+    return res.json();
+  },
+
+  importTasks: async (tasks: Omit<Task, 'id'>[]): Promise<{ message: string }> => {
+    const res = await fetchWithAuth(`${API_BASE_URL}/tasks/import`, {
+      method: 'POST',
+      body: JSON.stringify({ tasks }),
+    });
+    if (!res.ok) throw new Error('Failed to import tasks');
+    return res.json();
+  },
+
   // Assistant
   chat: async (message: string): Promise<ChatResponse> => {
     const res = await fetchWithAuth(`${API_BASE_URL}/assistant/chat`, {
@@ -153,14 +170,14 @@ export const api = {
 
   // Analytics
   getAnalytics: async (): Promise<AnalyticsResponse> => {
-    const res = await fetchWithAuth(`${API_BASE_URL}/analytics/`);
+    const res = await fetchWithAuth(`${API_BASE_URL}/analytics`);
     if (!res.ok) throw new Error('Failed to fetch analytics');
     return res.json();
   },
 
   // Workspaces
   createWorkspace: async (name: string, description?: string): Promise<Workspace> => {
-    const res = await fetchWithAuth(`${API_BASE_URL}/workspaces/`, {
+    const res = await fetchWithAuth(`${API_BASE_URL}/workspaces`, {
       method: 'POST',
       body: JSON.stringify({ name, description: description || '' }),
     });
@@ -169,7 +186,7 @@ export const api = {
   },
 
   listWorkspaces: async (): Promise<Workspace[]> => {
-    const res = await fetchWithAuth(`${API_BASE_URL}/workspaces/`);
+    const res = await fetchWithAuth(`${API_BASE_URL}/workspaces`);
     if (!res.ok) throw new Error('Failed to fetch workspaces');
     return res.json();
   },
